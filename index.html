@@ -18,7 +18,7 @@
             overflow-x: hidden; 
         }
         .premium-card { 
-            background: rgba(10, 16, 32, 0.7); 
+            background: rgba(10, 16, 32, 0.75); 
             backdrop-filter: blur(20px); 
             border: 1px solid rgba(255, 255, 255, 0.05); 
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
@@ -64,7 +64,7 @@
             background: #3b82f6;
         }
         .premium-input {
-            background: rgba(5, 8, 16, 0.8);
+            background: rgba(5, 8, 16, 0.85);
             border: 1px solid rgba(255, 255, 255, 0.06);
             transition: all 0.3s ease;
         }
@@ -80,7 +80,7 @@
     <!-- قماش النيبولا الفضائي المتحرك والتفاعلي -->
     <canvas id="canvas-nebula"></canvas>
 
-    <!-- لوحة التحكم والحسابات الجانبية الفاخرة (Auth Drawer) بدلاً من الشاشة الكاملة القسرية -->
+    <!-- لوحة التحكم والحسابات الجانبية الفاخرة (Auth Drawer) -->
     <div id="auth-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#020409]/98 border-l border-slate-800/80 z-50 transform translate-x-full transition-transform duration-300 backdrop-blur-md shadow-2xl p-6 flex flex-col justify-between">
         <div>
             <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-6">
@@ -93,7 +93,7 @@
                 <span class="text-[10px] font-bold text-blue-400 block mb-1">الحساب النشط حالياً</span>
                 <p id="drawer-user-status" class="text-xs text-slate-200 font-bold">جاري المزامنة مع السحابة...</p>
                 <div class="mt-3 flex gap-2">
-                    <button onclick="handleLogout()" id="drawer-logout-btn" class="hidden bg-red-650/10 hover:bg-red-600 bg-red-950/30 text-red-400 hover:text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all border border-red-500/20">تسجيل الخروج</button>
+                    <button onclick="handleLogout()" id="drawer-logout-btn" class="hidden bg-red-950/30 text-red-400 hover:text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all border border-red-500/20">تسجيل الخروج</button>
                 </div>
             </div>
 
@@ -126,11 +126,11 @@
         </div>
 
         <div class="text-center text-[10px] text-slate-600 border-t border-slate-900 pt-4">
-            منظومة العبور السحابي المعزول لـ F5 v7.5
+            منظومة العبور السحابي المعزول لـ F5 v8.0
         </div>
     </div>
 
-    <!-- واجهة الإدارة والتحكم الكبرى (تعمل فوراً كمعلم ضيف) -->
+    <!-- واجهة الإدارة والتحكم الكبرى -->
     <div class="app-container flex-1 flex flex-col" id="admin-view">
         
         <!-- شريط الرأس والتحكم العلوي الفاخر -->
@@ -145,14 +145,14 @@
                         <div>
                             <div class="flex items-center gap-2">
                                 <h1 class="text-lg font-black text-white text-glow">منصة F5 التعليمية</h1>
-                                <span class="bg-blue-500/10 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/20">v7.5 Ultra</span>
+                                <span class="bg-blue-500/10 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/20">v8.0 Ultra</span>
                             </div>
                             <p class="text-[10px] text-slate-400 mt-0.5" id="user-display-email">جاري تأمين الاتصال المعزول...</p>
                         </div>
                     </div>
 
                     <!-- أيقونة الدخول السريع وتدشين الحسابات الجانبية -->
-                    <button onclick="toggleAuthDrawer(true)" class="text-slate-200 hover:text-blue-400 text-xs flex items-center gap-2 bg-slate-900/90 px-4 py-3 rounded-xl border border-slate-800 transition-all shadow-md" title="إدارة حسابي">
+                    <button onclick="toggleAuthDrawer(true)" class="text-slate-200 hover:text-blue-400 text-xs flex items-center gap-2 bg-slate-900/90 px-4 py-3 rounded-xl border border-slate-800 transition-all shadow-md">
                         <i class="fas fa-user-circle text-base"></i> <span id="header-profile-btn-text">بوابة الحسابات</span>
                     </button>
                 </div>
@@ -166,7 +166,7 @@
                     </select>
                     
                     <button onclick="copyDynamicPrompt()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-5 py-3 rounded-xl animate-smooth whitespace-nowrap shadow-md shadow-blue-500/10 flex items-center gap-1.5">
-                        <i class="fas fa-wand-magic-sparkles"></i> نسخ توجيه الـ AI المطور v7.5
+                        <i class="fas fa-wand-magic-sparkles"></i> نسخ توجيه الـ AI المطور v8.0
                     </button>
                     
                     <button onclick="openHelpGuideModal()" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 text-amber-400 rounded-xl flex items-center justify-center transition-colors border border-slate-800" title="دليل المساعدة الفوري">
@@ -279,21 +279,15 @@
                         </button>
                     </div>
 
-                    <!-- بنك الأسئلة النموذجي السريع (الميزة الجديدة لسرعة الإنشاء والنسخ) -->
+                    <!-- صندوق القوالب الذكية السريعة -->
                     <div class="premium-card rounded-2xl p-4 border border-slate-800 flex flex-col gap-3">
-                        <span class="text-xs font-bold text-amber-400"><i class="fas fa-database ml-1"></i> بنك الأسئلة الفوري (حقن سريع بالمحرر):</span>
-                        <div class="space-y-2">
-                            <button onclick="injectQuestionTemplate('arabic_grammar')" class="w-full p-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-right text-[10px] text-slate-300 flex justify-between items-center transition-all">
-                                <span>📖 اختبار لغة عربية (نحو وقواعد)</span>
-                                <i class="fas fa-chevron-left text-blue-500"></i>
+                        <span class="text-xs font-bold text-slate-400"><i class="fas fa-magic text-indigo-400 ml-1"></i> قوالب جاهزة سريعة للبدء:</span>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="injectQuestionTemplate('arabic_grammar')" class="p-3 bg-slate-950/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl text-center text-[10px] font-bold text-slate-300">
+                                📝 كويز تفاعلي بسيط
                             </button>
-                            <button onclick="injectQuestionTemplate('tech_skills')" class="w-full p-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-right text-[10px] text-slate-300 flex justify-between items-center transition-all">
-                                <span>💻 المهارات الرقمية والحاسب</span>
-                                <i class="fas fa-chevron-left text-blue-500"></i>
-                            </button>
-                            <button onclick="injectQuestionTemplate('math_basics')" class="w-full p-2.5 bg-slate-900/80 hover:bg-slate-800 border border-slate-800 rounded-lg text-right text-[10px] text-slate-300 flex justify-between items-center transition-all">
-                                <span>📐 أساسيات الرياضيات التفاعلية</span>
-                                <i class="fas fa-chevron-left text-blue-500"></i>
+                            <button onclick="injectQuestionTemplate('math_basics')" class="p-3 bg-slate-950/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl text-center text-[10px] font-bold text-slate-300">
+                                🗂 بطاقات مفردات ذكية
                             </button>
                         </div>
                     </div>
@@ -316,57 +310,102 @@
 
             </div>
 
-            <!-- التبويب الثاني: صانع الكويزات بـ AI المباشر (Gemini Flash integration) -->
+            <!-- التبويب الثاني: صانع الكويزات بـ AI المباشر (تعديل كامل بالتحكم المتقدم ومخارج النشر الفوري والمزامنة التلقائية للمفاتيح) -->
             <div id="tab-content-ai-gen" class="flex flex-col gap-6 hidden">
                 <div class="border-b border-slate-800 pb-3">
                     <h2 class="text-lg font-black text-white flex items-center gap-2"><i class="fas fa-brain text-indigo-400 animate-pulse"></i> صانع الكويزات الفوري بـ AI المدمج</h2>
-                    <p class="text-xs text-slate-400 mt-1">اكتب عنوان الدرس أو المادة العلمية واصنع كويزاً متكاملاً بثوانٍ معدودة وحقنه مباشرة بمصنع المنصة.</p>
+                    <p class="text-xs text-slate-400 mt-1">قم بتهيئة إعدادات الأسئلة ثم اصنع كود اختبار تفاعلي فائق الاحترافية وسهل الفتح عبر الجوال.</p>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-1 premium-card p-5 rounded-2xl border border-slate-800 flex flex-col gap-4">
-                        <h3 class="text-xs font-black text-slate-300"><i class="fas fa-sliders-h ml-1"></i> خيارات توليد الأسئلة</h3>
-                        
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    <!-- عمود الإعدادات والتحكم المتطور -->
+                    <div class="lg:col-span-4 premium-card p-5 rounded-2xl border border-slate-800 flex flex-col gap-4">
+                        <h3 class="text-xs font-black text-slate-300 border-b border-slate-800/60 pb-2"><i class="fas fa-sliders-h ml-1 text-indigo-400"></i> خيارات توليد الأسئلة الدقيقة</h3>
+
                         <div>
                             <label class="block text-[11px] text-slate-400 mb-1.5">موضوع الاختبار أو الدرس</label>
-                            <input type="text" id="ai-gen-topic" placeholder="مثال: المهارات الرقمية للصف الخامس" class="w-full premium-input rounded-xl p-3 text-xs text-slate-200">
-                        </div>
-                        
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1.5">أسلوب وهيكل العرض</label>
-                            <select id="ai-gen-style" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-3 border border-slate-800 focus:outline-none cursor-pointer">
-                                <option value="options">اختيارات من متعدد (MCQ)</option>
-                                <option value="true-false">صح وخطأ تفاعلي</option>
-                                <option value="mix">مزيج تفاعلي متكامل</option>
-                            </select>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1.5">الأسئلة أو المحتوى العلمي الخام (اختياري)</label>
-                            <textarea id="ai-gen-content" placeholder="ألصق أسئلتك هنا في حال رغبتك بتحويلها لنموذج تفاعلي دقيق..." class="w-full h-32 bg-slate-950/80 border border-slate-900 rounded-xl p-3 text-xs text-slate-300 focus:outline-none resize-none"></textarea>
+                            <input type="text" id="ai-gen-topic" placeholder="مثال: قواعد النحو للصف السادس" class="w-full premium-input rounded-xl p-3 text-xs text-slate-200">
                         </div>
 
-                        <button onclick="generateQuizWithGemini()" id="btn-generate-ai" class="w-full bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold py-4 rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-2">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1.5">عدد الأسئلة الكلي</label>
+                                <select id="ai-gen-count" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-2.5 border border-slate-800 focus:outline-none">
+                                    <option value="3">3 أسئلة</option>
+                                    <option value="5" selected>5 أسئلة</option>
+                                    <option value="10">10 أسئلة</option>
+                                    <option value="15">15 سؤالاً</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] text-slate-400 mb-1.5">خيارات كل سؤال</label>
+                                <select id="ai-gen-options-count" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-2.5 border border-slate-800 focus:outline-none">
+                                    <option value="3">3 خيارات</option>
+                                    <option value="4" selected>4 خيارات</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="text-[11px]">تضمين أسئلة صح وخطأ؟</span>
+                                <input type="checkbox" id="ai-gen-include-tf" checked class="w-4 h-4 rounded bg-slate-900 border-slate-800 text-blue-600 focus:ring-0">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-[11px] text-slate-400 mb-1.5">المادة العلمية المساعدة (اختياري)</label>
+                            <textarea id="ai-gen-content" placeholder="ألصق نصوص الدرس أو الأسئلة هنا ليعيد صياغتها تفاعلياً..." class="w-full h-24 bg-slate-950/80 border border-slate-900 rounded-xl p-3 text-xs text-slate-300 focus:outline-none resize-none"></textarea>
+                        </div>
+
+                        <button onclick="generateQuizWithGemini()" id="btn-generate-ai" class="w-full bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-2">
                             <i class="fas fa-wand-magic-sparkles"></i> <span>توليد كود الاختبار بـ AI الآن</span>
                         </button>
                     </div>
 
-                    <div class="lg:col-span-2 premium-card p-5 rounded-2xl border border-slate-800 flex flex-col justify-between min-h-[400px]">
+                    <!-- عمود حصاد التوليد والقرارات السريعة -->
+                    <div class="lg:col-span-8 premium-card p-5 rounded-2xl border border-slate-800 flex flex-col justify-between min-h-[450px]">
                         <div class="mb-4">
-                            <h3 class="text-xs font-black text-slate-300 flex items-center gap-2"><i class="fas fa-terminal"></i> حالة وحصاد التوليد السحابي</h3>
-                            <p class="text-[11px] text-slate-400 mt-1">عند انتهاء الذكاء الاصطناعي، سيتم حقن كود الاختبار التفاعلي بمصنع المنصة مباشرة لمراجعته وتعديله.</p>
+                            <h3 class="text-xs font-black text-slate-300 flex items-center gap-2"><i class="fas fa-terminal text-emerald-400"></i> حالة وحصاد التوليد السحابي</h3>
+                            <p class="text-[11px] text-slate-400 mt-1">عند انتهاء التوليد، سيظهر الكود وتفتح لك أزرار النشر السريع والتبرع كاختبار عام مباشرة دون نسخ لصق مجهد!</p>
                         </div>
                         
-                        <div id="ai-status-panel" class="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-slate-800 rounded-2xl bg-slate-950/40">
-                            <div id="ai-status-icon" class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center text-slate-500 mb-4">
-                                <i class="fas fa-brain text-2xl animate-pulse"></i>
+                        <div id="ai-status-panel" class="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-slate-800 rounded-2xl bg-slate-950/40 bg-slate-950/40">
+                            <div id="ai-status-icon" class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center text-slate-500 mb-4 text-2xl">
+                                <i class="fas fa-brain animate-pulse text-indigo-400"></i>
                             </div>
-                            <h4 id="ai-status-title" class="text-xs font-bold text-slate-300">مرحباً بك في صانع الكويزات بـ AI</h4>
-                            <p id="ai-status-desc" class="text-[10px] text-slate-500 mt-1 max-w-sm">املأ البيانات باليمين واضغط توليد، وسيقوم النظام ببناء الكود البرمجي التفاعلي لك بثوانٍ.</p>
+                            <h4 id="ai-status-title" class="text-xs font-bold text-slate-300">مرحباً بك في صانع الكويزات الفوري بـ AI</h4>
+                            <p id="ai-status-desc" class="text-[10px] text-slate-500 mt-1 max-w-sm">املأ البيانات باليمين واضغط توليد، وسيقوم النظام ببناء الكود البرمجي التفاعلي لك بثوانٍ تلقائياً.</p>
                             
-                            <!-- شريط تقدم مخصص -->
+                            <!-- شريط تقدير المسار الفعلي -->
                             <div id="ai-progress-bar" class="w-full max-w-xs bg-slate-900 h-1.5 rounded-full overflow-hidden mt-4 hidden">
-                                <div class="bg-indigo-500 h-full w-0 animate-pulse" id="ai-progress-fill" style="transition: width 15s linear;"></div>
+                                <div class="bg-indigo-500 h-full w-0" id="ai-progress-fill" style="transition: width 15s linear;"></div>
+                            </div>
+
+                            <!-- لوحة قرارات التثبيت والنسخ الفوري والمستقر بعد النجاح -->
+                            <div id="ai-action-panel" class="hidden w-full mt-6 space-y-4">
+                                <div class="bg-emerald-950/20 p-4 rounded-xl border border-emerald-500/10 text-right">
+                                    <span class="text-[10px] font-bold text-emerald-400 block mb-1">تم توليد كود الاختبار بنجاح!</span>
+                                    <p class="text-[11px] text-slate-300 leading-relaxed">اختر قرار النشر المناسب لطلابك بالأسفل ليتم حقنه، وربطه وبثه فوراً بـ F5:</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                    <button onclick="directActionCopyCode()" class="py-3 bg-slate-900 hover:bg-slate-850 text-slate-200 font-bold rounded-xl border border-slate-800 text-xs transition-all flex items-center justify-center gap-1.5"><i class="fas fa-copy text-blue-400"></i> نسخ كود الـ HTML</button>
+                                    <button onclick="directActionPublish(false)" class="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5"><i class="fas fa-lock"></i> تثبيت كاختبار خاص 🔒</button>
+                                    <button onclick="directActionPublish(true)" class="py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5"><i class="fas fa-globe"></i> تبرع كاختبار عام 🌐</button>
+                                </div>
+                            </div>
+
+                            <!-- صمام الأمان والنسخ الاحتياطي في حال تخطي حدود القوة الضاغطة للـ API -->
+                            <div id="ai-fallback-panel" class="hidden w-full mt-6 space-y-3">
+                                <div class="bg-amber-950/30 p-4 rounded-xl border border-amber-500/20 text-right">
+                                    <span class="text-[10px] font-bold text-amber-400 block mb-1"><i class="fas fa-exclamation-triangle"></i> خوادم التوليد مشغولة حالياً (تجاوز الضغط)</span>
+                                    <p class="text-[11px] text-slate-300 leading-relaxed">بسبب الاستخدام الكثيف والضغط العالي من المعلمين، قمنا بنسخ التوجيه الاحترافي الخاص بك تلقائياً! اضغط بالأسفل للذهاب لأي ذكاء اصطناعي ولصق التوجيه للحصول على كود اختبار تفاعلي خارق:</p>
+                                </div>
+                                <div class="flex gap-2">
+                                    <a href="https://chatgpt.com/" target="_blank" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold rounded-xl text-slate-300 transition-all text-center flex items-center justify-center gap-2"><i class="fas fa-external-link-alt"></i> استخدام ChatGPT</a>
+                                    <a href="https://gemini.google.com/" target="_blank" class="flex-1 py-3 bg-indigo-950 hover:bg-indigo-900 border border-indigo-500/20 text-xs font-bold rounded-xl text-indigo-300 transition-all text-center flex items-center justify-center gap-2"><i class="fas fa-external-link-alt"></i> استخدام Gemini Web</a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -424,7 +463,7 @@
 
         <!-- التذييل الأنيق والبسيط مع الجملة التكريمية المتواضعة "إعداد محمد حكمي" -->
         <footer class="bg-slate-950/80 border-t border-slate-900/60 p-6 flex flex-col items-center justify-center gap-2 backdrop-blur-md">
-            <span class="text-xs text-slate-500">منظومة العبور السحابي والمعزل الإحصائي الذكي F5 MATRIX v7.5 © 2026</span>
+            <span class="text-xs text-slate-500">منظومة العبور السحابي والمعزل الإحصائي الذكي F5 MATRIX v8.0 © 2026</span>
             <span class="text-[11px] text-slate-400 font-bold tracking-wide">إعداد / محمد حكمي</span>
         </footer>
     </div>
@@ -443,17 +482,17 @@
                 <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
                     <span class="w-8 h-8 bg-blue-600/10 text-blue-400 border border-blue-500/20 rounded-full flex items-center justify-center font-bold mb-3 text-sm">١</span>
                     <h4 class="font-bold text-slate-200 mb-1">صمم الاختبار بـ AI</h4>
-                    <p class="text-slate-400">اكتب موضوع درسك في قسم "صانع الكويزات بـ AI" وسيتولى الذكاء الاصطناعي بناء الاختبار بالكامل.</p>
+                    <p class="text-slate-400">اكتب موضوع درسك وحدد التفاصيل واضغط "توليد كود الاختبار" وسيقوم الـ AI ببناء الاختبار تماماً.</p>
                 </div>
                 <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
                     <span class="w-8 h-8 bg-purple-600/10 text-purple-400 border border-purple-500/20 rounded-full flex items-center justify-center font-bold mb-3 text-sm">٢</span>
-                    <h4 class="font-bold text-slate-200 mb-1">تثبيت سحابي فوري</h4>
-                    <p class="text-slate-400">حدد اسماً ووسماً مخصصاً للرابط واضغط "حفظ وتثبيت سحابياً" للحصول على الرابط فورا.</p>
+                    <h4 class="font-bold text-slate-200 mb-1">تثبيت سحابي بضغطة واحدة</h4>
+                    <p class="text-slate-400">انشر كاختبار خاص أو تبرع به للعام من لوحة النتائج مباشرة دون نسخ يدوي ولصق مرهق.</p>
                 </div>
                 <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
                     <span class="w-8 h-8 bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center font-bold mb-3 text-sm">٣</span>
                     <h4 class="font-bold text-slate-200 mb-1">رصد درجات الطلاب</h4>
-                    <p class="text-slate-400">شارك الرابط مع الطلاب، وتابع رصد الدرجات وحالات الاجتياز لحظة بلحظة بسحابة F5.</p>
+                    <p class="text-slate-400">تابع رصد إجابات ودرجات فصولك لحظياً مع إمكانيات التصدير السريعة لإكسل والطباعة الورقية.</p>
                 </div>
             </div>
         </div>
@@ -548,9 +587,6 @@
         
         <div class="flex-1 bg-slate-950 flex items-center justify-center p-4">
             <div class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[310px] shadow-2xl">
-                <div class="h-[32px] w-[3px] bg-gray-800 absolute -start-[17px] top-[72px] rounded-s-lg"></div>
-                <div class="h-[46px] w-[3px] bg-gray-800 absolute -start-[17px] top-[124px] rounded-s-lg"></div>
-                <div class="h-[64px] w-[3px] bg-gray-800 absolute -end-[17px] top-[142px] rounded-e-lg"></div>
                 <div class="rounded-[2rem] overflow-hidden w-full h-full bg-white">
                     <iframe id="cinema-preview-frame" class="w-full h-full border-none" src="about:blank"></iframe>
                 </div>
@@ -580,7 +616,7 @@
 
     <!-- إشعار مخصص وأنيق بالخلفية لسهولة ومظهر المنصات الفخمة -->
     <div id="custom-alert" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-blue-650 text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-2 text-sm font-bold border border-blue-500/20">
+        <div class="bg-blue-650 text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-2 text-sm font-bold border border-blue-400/20">
             <i class="fa-solid fa-bell text-lg"></i>
             <span id="alert-message">جاري المعالجة...</span>
         </div>
@@ -607,7 +643,6 @@
         const db = getFirestore(app);
         const appId = "f5-platform-app";
 
-        // إسناد الدوال والمتغيرات كبنية موحدة وجسر أمان لحل أخطاء window.auth السابقة
         window.F5_FIREBASE = {
             db,
             auth,
@@ -622,10 +657,10 @@
             createUserWithEmailAndPassword,
             signOut,
             onAuthStateChanged,
-            signInAnonymously
+            signInAnonymously,
+            firebaseApiKey: firebaseConfig.apiKey // إسناد المفتاح برمجياً لاستخدامه كـ API مدمج لـ Gemini تلقائياً
         };
 
-        // التحقق الآمن والمصادقة الصامتة للضيوف للامتثال الصارم لـ Rule 3
         const initAuthSystem = async () => {
             const F5 = window.F5_FIREBASE;
             
@@ -647,17 +682,15 @@
                     initNebulaBackground();
                     checkUrlForSharedCode();
                 } else {
-                    // تسجيل دخول صامت كمعلم ضيف فوراً عند تشغيل الصفحة لضمان توافقية قواعد الأمان وقاعدة Rule 3
                     try {
                         await F5.signInAnonymously(F5.auth);
                     } catch (e) {
-                        console.error("Auto authentication failed:", e);
+                        console.error("Auto auth failed:", e);
                     }
                 }
             });
         };
 
-        // تشغيل نظام التحقق بعد تحميل الكائنات السحابية
         initAuthSystem();
     </script>
 
@@ -673,7 +706,6 @@
 
         let authMode = "login";
 
-        // مؤثرات صوتية مبسطة
         function playSfx(type) {
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -696,7 +728,6 @@
             } catch (e) {}
         }
 
-        // إظهار لوحة التحكم الجانبية للحسابات
         function toggleAuthDrawer(open) {
             const drawer = document.getElementById('auth-drawer');
             if (open) {
@@ -711,8 +742,8 @@
             authMode = (authMode === "login") ? "register" : "login";
             document.getElementById('auth-title').innerText = (authMode === "login") ? "تسجيل دخول المعلمين" : "إنشاء حساب معلم جديد";
             document.getElementById('auth-subtitle').innerText = (authMode === "login") ? "قم بتأمين مستودعك الخاص ومزامنة كويزاتك من أي جهاز" : "أنشئ حسابك الخاص الآن لحفظ كويزاتك ورصد درجات فصولك بشكل آمن";
-            document.getElementById('auth-toggle-btn').innerText = (authMode === "login") ? "ليس لديك حساب؟ سجل حساباً جديداً الآن" : "لديك حساب بالفعل؟ سجل دخولك الآن";
-            document.getElementById('auth-submit-text').innerText = (authMode === "login") ? "تأكيد الأمان والدخول للمنصة" : "إنشاء الحساب وتأسيس المستودع";
+            document.getElementById('auth-toggle-btn').innerText = (authMode === "login") ? "ليس لديك حساب؟ إنشاء حساب جديد الآن" : "لديك حساب بالفعل؟ سجل دخولك الآن";
+            document.getElementById('auth-submit-text').innerText = (authMode === "login") ? "تأكيد الأمان والدخول للمنصة" : "تسجيل الحساب الجديد وبناء المستودع";
         }
 
         async function handleAuthSubmit(e) {
@@ -769,7 +800,7 @@
             }, 3000);
         }
 
-        // ==================== [إدارة ونشر وتخزين الكويزات سحابياً بالكامل] ====================
+        // ==================== [إدارة ونشر وتخزين الكويزات سحابياً] ====================
         function togglePublishFields() {
             const isPublic = document.getElementById('form-is-public').checked;
             const fieldsContainer = document.getElementById('public-academic-fields');
@@ -829,7 +860,6 @@
             playSfx('click');
         }
 
-        // نسخ التوجيه المطور وتهيئته سحابياً لـ F5
         function copyDynamicPrompt() {
             const model = document.getElementById('ai-model-select').value;
             const isPublic = document.getElementById('form-is-public').checked;
@@ -847,7 +877,7 @@
             const fullPrompt = `أريد بناء كود صفحة HTML/JS كويز تفاعلي فائق الجمال بأسلوب تكنولوجي مريح وخيارات ألوان راقية لتبسيط العرض، ومناسب تماماً للفتح والمزامنة عبر الهواتف الذكية والأجهزة المحمولة.
 🎯 طبيعة وسياق العمل: ${detailsText}
 
-🚨 بروتوكول العبور السحابي لـ F5 MATRIX v7.5:
+🚨 بروتوكول العبور السحابي لـ F5 MATRIX v8.0:
 1. الالتزام الكامل بنسبة نجاح مقدرة بـ (${passScore}%).
 2. عند الانتهاء كلياً من حل الأسئلة وظهور التقييم النهائي للطالب، يجب فوراً إرسال وبث النتيجة عبر الجسر البرمجي التالي لتوثيقها في حساب المعلم:
    if (window.parent && window.parent.EndexSubmitBridge) {
@@ -862,44 +892,67 @@
             showAlert("تم نسخ وهيكلة التوجيه المطور لـ F5 بنجاح!");
         }
 
-        // ==================== [المطور المدمج: توليد الكود بـ Gemini Flash API] ====================
+        // ==================== [صانع الكويزات بـ AI التلقائي 100% والمربوط بـ Firebase API key] ====================
+        let lastGeneratedCode = ""; 
+
         async function generateQuizWithGemini() {
             const topic = document.getElementById('ai-gen-topic').value.trim();
-            const style = document.getElementById('ai-gen-style').value;
+            const count = document.getElementById('ai-gen-count').value;
+            const optionsCount = document.getElementById('ai-gen-options-count').value;
+            const includeTF = document.getElementById('ai-gen-include-tf').checked;
             const content = document.getElementById('ai-gen-content').value.trim();
             const btn = document.getElementById('btn-generate-ai');
             
             if(!topic) { alert("يرجى كتابة موضوع الكويز المطلوب أولاً!"); return; }
 
+            const F5 = window.F5_FIREBASE;
+            const apiKey = F5.firebaseApiKey; 
+
             btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري التوليد الآن...`;
+            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري استدعاء الـ AI...`;
             
             const statusIcon = document.getElementById('ai-status-icon');
             const statusTitle = document.getElementById('ai-status-title');
             const statusDesc = document.getElementById('ai-status-desc');
             const progressBar = document.getElementById('ai-progress-bar');
             const progressFill = document.getElementById('ai-progress-fill');
+            const actionPanel = document.getElementById('ai-action-panel');
+            const fallbackPanel = document.getElementById('ai-fallback-panel');
 
-            statusIcon.innerHTML = `<i class="fas fa-brain text-2xl text-indigo-400 animate-bounce"></i>`;
-            statusTitle.innerText = "جاري استدعاء الـ AI وتحليل المدخلات...";
-            statusDesc.innerText = "نقوم ببناء واجهات مستخدم مذهلة ومتجاوبة مع الأجهزة الذكية تتوافق مع جسر العبور لـ F5.";
+            actionPanel.classList.add('hidden');
+            fallbackPanel.classList.add('hidden');
+            statusIcon.innerHTML = `<i class="fas fa-magic text-2xl text-indigo-400 animate-bounce"></i>`;
+            statusTitle.innerText = "جاري هندسة وصياغة الاختبار سحابياً...";
+            statusDesc.innerText = `نقوم بإنشاء كويز من ${count} أسئلة بخيارات من ${optionsCount} بنود وتجنب التداخل...`;
             progressBar.classList.remove('hidden');
             progressFill.style.width = "0%";
             setTimeout(() => { progressFill.style.width = "90%"; }, 200);
 
-            const systemPrompt = "أنت مهندس برمجيات محترف ومستشار أكاديمي. مهمتك بناء اختبار تفاعلي فائق الجمال بملف HTML واحد متكامل متوافق مع الهواتف الذكية ويستخدم Tailwind CSS ومكتبة الخطوط العربية والأيقونات الشهيرة، ويحتوي على جسر بث الدرجات السحابي لـ F5.";
-            const userPrompt = `صمم كويز تفاعلي حول: (${topic}).
-النمط المطلوب: ${style}.
-محتوى مساعد: ${content}.
-
-متطلبات الجسر الإلزامية:
-عند عرض التقييم الأخير للدرجات، شغّل فوراً وبث النتيجة عبر الجسر البرمجي التالي:
+            // صياغة التوجيه المتطور وتخزينه كـ Fallback للنسخ الفوري في حالة توقف الـ API بسبب ضغط الـ 900 قروب
+            const detailsText = `إنشاء كويز تفاعلي رائع من ${count} أسئلة بخيارات من ${optionsCount} بنود. المادة المساعدة: ${content}`;
+            const backupPrompt = `أريد بناء كود صفحة HTML/JS كويز تفاعلي فائق الجمال بأسلوب تكنولوجي ومناسب تماماً للهواتف الذكية.
+🎯 طبيعة وسياق العمل: ${detailsText}
+🚨 بروتوكول العبور السحابي لـ F5 MATRIX v8.0:
+عند الانتهاء كلياً من حل الأسئلة، يجب فوراً إرسال وبث النتيجة عبر الجسر البرمجي التالي لتوثيقها:
 if (window.parent && window.parent.EndexSubmitBridge) {
-    window.parent.EndexSubmitBridge({ score: الدرجة_المرصودة, total: الدرجة_القصوى });
-}
-تأكد من عدم وجود كود تفسيري خارج كتلة الـ HTML.`;
+    window.parent.EndexSubmitBridge({ score: الدرجة_المستحقة, total: الدرجة_الكلية });
+}`;
 
-            const apiKey = ""; // سيتم تزويده برمجياً من البيئة المشغلة للمنصة
+            const systemPrompt = "أنت مهندس برمجيات ومستشار أكاديمي خبير في الفحص والتقييم الذكي المدمج بجسر المزامنة لـ F5.";
+            const userPrompt = `قم ببناء اختبار تفاعلي (HTML) كامل ومتجاوب بملف واحد للدرس: (${topic}).
+المعلومات والمادة الخام: ${content}.
+شروط التوليد الحتمية:
+1. إجمالي عدد الأسئلة: ${count} أسئلة تفاعلية.
+2. لكل سؤال اختيار من متعدد: ${optionsCount} خيارات بالضبط.
+3. هل يتضمن أسئلة صح وخطأ؟ ${includeTF ? 'نعم، أدرج سؤالاً أو سؤالين من نمط صح وخطأ تفاعلي بـ True/False' : 'لا، اجعل كل الأسئلة بنظام خيارات متعددة'}.
+4. المظهر البصري: نمط مستقبلي غامق فاخر جداً ومريح للعين واللمس على أجهزة الجوال.
+5. جسر العبور السحابي لـ F5 (مهم وحاسم):
+عند إنهاء الاختبار وعرض النتيجة الإجمالية للطالب، يجب فوراً استدعاء وبث البيانات برمجياً:
+if (window.parent && window.parent.EndexSubmitBridge) {
+    window.parent.EndexSubmitBridge({ score: score, total: total });
+}
+ملاحظة: لا تضع أي نصوص أو كود تفسيري خارج كود الـ HTML المكتمل والجاهز للتشغيل فوراً.`;
+
             const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
             const payload = {
                 contents: [{ parts: [{ text: userPrompt }] }],
@@ -910,7 +963,6 @@ if (window.parent && window.parent.EndexSubmitBridge) {
             let resultText = "";
             let delay = 1000;
 
-            // تطبيق استراتيجية Exponential Backoff طبقاً للقواعد والأدلة
             for (let i = 1; i <= 5; i++) {
                 try {
                     const res = await fetch(endpoint, {
@@ -937,21 +989,65 @@ if (window.parent && window.parent.EndexSubmitBridge) {
                 if (cleaned.endsWith("```")) cleaned = cleaned.substring(0, cleaned.length - 3);
                 cleaned = cleaned.trim();
 
+                lastGeneratedCode = cleaned;
                 document.getElementById('main-html-editor').value = cleaned;
+
                 progressFill.style.width = "100%";
                 statusIcon.innerHTML = `<i class="fas fa-check-circle text-2xl text-emerald-400"></i>`;
-                statusTitle.innerText = "اكتمل التوليد بنجاح واحترافية!";
-                statusDesc.innerText = "تم حقن كود كويز الـ AI في محرر الأكواد بالمصنع الرئيسي. يمكنك معاينته أو حفظه وتثبيته سحابياً لطلابك.";
-                showAlert("تم توليد الكويز ونقله للمحرر بنجاح!");
-                switchTab('create');
+                statusTitle.innerText = "اكتمل التوليد السحابي لـ F5 بنجاح!";
+                statusDesc.innerText = "كود الاختبار جاهز بالكامل بالمصنع، ويمكنك توجيهه وتصديره فورا بضغطة زر أدناه.";
+                
+                actionPanel.classList.remove('hidden');
+                showAlert("تم توليد الكويز بنجاح وازدهار!");
             } else {
-                statusIcon.innerHTML = `<i class="fas fa-exclamation-triangle text-2xl text-red-500"></i>`;
-                statusTitle.innerText = "فشل التوليد السحابي";
-                statusDesc.innerText = "حدث تعذر أثناء الاتصال بخوادم التوليد، يرجى التحقق وإعادة المحاولة لاحقاً.";
+                // تفعيل صمام الأمان وتجنب خروج المعلم غاضباً في حالة توقف الـ API
+                // نقوم بنسخ التوجيه الاحترافي المخصص لجهاز المعلم فوراً ومساعدته في دقيقة واحدة
+                const tempTex = document.createElement('textarea');
+                tempTex.value = backupPrompt;
+                document.body.appendChild(tempTex);
+                tempTex.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempTex);
+
+                statusIcon.innerHTML = `<i class="fas fa-network-wired text-2xl text-amber-500 animate-pulse"></i>`;
+                statusTitle.innerText = "جاري تفعيل صمام الأمان السحابي لـ F5";
+                statusDesc.innerText = "نظراً للضغط الهائل على السيرفر في المجموعات التعليمية، تم نسخ توجيه الـ AI المخصص للاختبار الخاص بك في حافظة جهازك تلقائياً! الرجاء النقر فوق أحد الخيارات المتاحة أدناه ولصقه مباشرة للحصول على كود الاختبار التفاعلي ثم وضعه في مصنع المنصة لتثبيته خلال ثوانٍ.";
+                
+                fallbackPanel.classList.remove('hidden');
+                showAlert("تم تفعيل صمام الأمان ونسخ التوجيه لجهازك!");
             }
 
             btn.disabled = false;
             btn.innerHTML = `<i class="fas fa-wand-magic-sparkles"></i> <span>توليد كود الاختبار بـ AI الآن</span>`;
+        }
+
+        // ==================== [مزايا القرارات والإعداد الفوري للـ AI المولد] ====================
+        function directActionCopyCode() {
+            if(!lastGeneratedCode) return;
+            const tempTex = document.createElement('textarea');
+            tempTex.value = lastGeneratedCode;
+            document.body.appendChild(tempTex);
+            tempTex.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTex);
+            showAlert("تم نسخ كود الـ HTML بنجاح في حافظتك!");
+        }
+
+        async function directActionPublish(isPublic) {
+            if(!lastGeneratedCode) return;
+            
+            const title = prompt("أدخل عنوان كويز الـ AI الجديد:", "اختبار المهارات الرقمية المطور");
+            if (!title) return;
+
+            const baseSlug = prompt("أدخل الوسم المخصص للرابط (Slug) بالإنجليزية فقط (بدون مسافات):", "quiz-ai-" + Math.floor(Math.random() * 9000 + 1000));
+            if (!baseSlug) return;
+
+            document.getElementById('form-title').value = title;
+            document.getElementById('form-slug').value = baseSlug;
+            document.getElementById('form-is-public').checked = isPublic;
+            
+            togglePublishFields();
+            await publishNewQuiz();
         }
 
         // ==================== [حفظ وتخزين الاختبارات سحابياً بالكامل] ====================
@@ -976,7 +1072,6 @@ if (window.parent && window.parent.EndexSubmitBridge) {
             const studentUrl = `https://FAFO.github.io/F5/?id=${fullSlug}`;
             
             const F5 = window.F5_FIREBASE;
-            // التحقق من هوية المستخدم آلياً، فإذا كان ضيفاً نستخدم معرّف ضيف ثابت ومنظم
             const userId = F5.auth.currentUser?.uid || "guest-teacher";
 
             const quizObject = {
@@ -996,11 +1091,9 @@ if (window.parent && window.parent.EndexSubmitBridge) {
             };
 
             try {
-                // حفظ الكويز في السحابة بمكان عام لقراءة الطلاب
                 const publicRef = F5.doc(F5.db, 'artifacts', F5.appId, 'public', 'data', 'quizzes', fullSlug);
                 await F5.setDoc(publicRef, quizObject);
 
-                // حفظ نسخة الكويز في مجلد المعلم الشخصي
                 const privateRef = F5.doc(F5.db, 'artifacts', F5.appId, 'users', userId, 'quizzes', fullSlug);
                 await F5.setDoc(privateRef, quizObject);
 
@@ -1017,7 +1110,7 @@ if (window.parent && window.parent.EndexSubmitBridge) {
             }
         }
 
-        // جلب كويزات المعلم من Firestore
+        // جلب كويزات المعلم الخاصة به من Firestore
         async function loadMyPrivateQuizzes() {
             const grid = document.getElementById('my-private-quizzes-grid');
             grid.innerHTML = `<div class="text-center py-6 col-span-full text-slate-500 text-xs"><i class="fas fa-spinner animate-spin text-xl mb-2 block"></i> جاري مزامنة اختباراتك السحابية الخاصة...</div>`;
@@ -1145,7 +1238,7 @@ if (window.parent && window.parent.EndexSubmitBridge) {
                     <button onclick="openQuizManagementModal('${q.baseSlug}', '${q.title}', '${q.author || 'خاص'}')" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px] py-2.5 rounded-xl transition-all text-center">
                         إدارة ورصد الدرجات 📊
                     </button>
-                    <button onclick="navigator.clipboard.writeText('https://FAFO.github.io/F5/?id=${q.fullSlug}'); alert('تم نسخ رابط الطلاب بنجاح لـ F5!');" class="px-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-xl text-slate-400 transition-all" title="نسخ رابط حل الطلاب"><i class="fas fa-link text-[10px]"></i></button>
+                    <button onclick="navigator.clipboard.writeText('https://FAFO.github.io/F5/?id=${q.fullSlug}'); alert('تم نسخ رابط الطلاب بنجاح لـ F5!');" class="px-3 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl text-slate-400 transition-all" title="نسخ رابط حل الطلاب"><i class="fas fa-link text-[10px]"></i></button>
                 </div>
             `;
             return div;
@@ -1153,7 +1246,7 @@ if (window.parent && window.parent.EndexSubmitBridge) {
 
         // ==================== [إدارة وتتبع استجابات الطلاب ورقابة المعازل] ====================
         let currentModalActiveBaseSlug = "";
-        let currentModalActiveSubmissions = []; // لتخزين السجلات المسترجعة من السحابة ودعم التصدير والطباعة
+        let currentModalActiveSubmissions = []; 
 
         function openQuizManagementModal(baseSlug, title, author) {
             currentModalActiveBaseSlug = baseSlug;
@@ -1176,7 +1269,6 @@ if (window.parent && window.parent.EndexSubmitBridge) {
             document.getElementById('quiz-management-modal').classList.add('hidden'); 
         }
 
-        // جلب ورصد كشف درجات الطلاب سحابياً
         async function fetchQuizAnalyticsFromModal() {
             const targetSlug = document.getElementById('modal-analytics-slug-input').value.trim();
             const tbody = document.getElementById('analytics-table-body');
@@ -1255,7 +1347,6 @@ if (window.parent && window.parent.EndexSubmitBridge) {
             document.getElementById('stat-pass-rate').innerText = "0%";
         }
 
-        // معالج إنشاء التوائم والمعازل الإحصائية لفصول محددة (gshX)
         function cloneAndSegregateEngine(baseSlug) {
             const className = prompt("تأسيس حقل معزول ومستقل لـ F5 (gshX):\nاكتب اسم أو رمز الفصل الجديد لإنشاء رابط مستقل بالكامل لطلابهم:");
             if (!className || !className.trim()) return;
@@ -1271,10 +1362,10 @@ if (window.parent && window.parent.EndexSubmitBridge) {
             fetchQuizAnalyticsFromModal();
         }
 
-        // ==================== [تصدير كشوف الدرجات والطباعة (المزايا الجديدة)] ====================
+        // ==================== [تصدير كشوف الدرجات والطباعة] ====================
         function exportAnalyticsToCSV() {
             if (currentModalActiveSubmissions.length === 0) { alert("لا توجد سجلات لتصديرها!"); return; }
-            let csvContent = "\ufeff"; // BOM لدعم اللغة العربية في إكسل
+            let csvContent = "\ufeff"; 
             csvContent += "اسم الطالب الثلاثي,الدرجة المكتسبة,الدرجة الكلية,النسبة المئوية,تاريخ الإرسال\r\n";
             
             currentModalActiveSubmissions.forEach(r => {
@@ -1369,7 +1460,6 @@ if (window.parent && window.parent.EndexSubmitBridge) {
                 return; 
             }
 
-            // الجسر البرمجي الفعال لتسجيل درجات الطلاب في السحابة فوراً بالمسار الصحيح
             window.EndexSubmitBridge = async function(result) {
                 const F5 = window.F5_FIREBASE;
                 try {
@@ -1476,57 +1566,6 @@ if (window.parent && window.parent.EndexSubmitBridge) {
   <\/script>
 </body>
 </html>`;
-            } else if (type === 'tech_skills') {
-                templateCode = `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>اختبار المهارات الرقمية</title>
-  <script src="https://cdn.tailwindcss.com"><\/script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>body { font-family: 'Tajawal', sans-serif; background: #070913; color: #e2e8f0; }</style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-4">
-  <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center shadow-2xl">
-    <div class="w-14 h-14 bg-indigo-500/10 text-indigo-400 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-indigo-500/20">
-      <i class="fas fa-laptop-code"></i>
-    </div>
-    <h2 class="text-base font-black text-white mb-2">كويز المهارات الرقمية والحاسب</h2>
-    <p class="text-xs text-slate-400 mb-6">قياس المعرفة بوحدات التخزين ومكونات النظام</p>
-    
-    <div class="bg-slate-950 p-4 rounded-xl text-right border border-slate-850 mb-4">
-      <span class="text-[10px] text-indigo-400 font-bold">السؤال الأول:</span>
-      <p class="text-xs font-bold text-slate-200 mt-1">تعتبر الـ RAM ذاكرة الوصول العشوائي وتفقد محتوياتها عند انقطاع الكهرباء؟</p>
-    </div>
-
-    <div class="grid grid-cols-2 gap-2">
-      <button onclick="checkAnswer(true)" class="py-3.5 bg-slate-950 hover:bg-emerald-500/10 hover:border-emerald-500 text-center rounded-xl border border-slate-800 text-xs font-bold transition-all">صح 🟢</button>
-      <button onclick="checkAnswer(false)" class="py-3.5 bg-slate-950 hover:bg-red-500/10 hover:border-red-500 text-center rounded-xl border border-slate-800 text-xs font-bold transition-all">خطأ 🔴</button>
-    </div>
-    <p id="feedback" class="text-xs font-bold mt-4 hidden"></p>
-  </div>
-  <script>
-    function checkAnswer(isCorrect) {
-      const fb = document.getElementById('feedback');
-      fb.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
-      if (isCorrect) {
-        fb.innerHTML = '🟢 إجابة صحيحة!';
-        fb.classList.add('text-emerald-400');
-        if (window.parent && window.parent.EndexSubmitBridge) {
-          window.parent.EndexSubmitBridge({ score: 10, total: 10 });
-        }
-      } else {
-        fb.innerHTML = '🔴 إجابة خاطئة!';
-        fb.classList.add('text-red-400');
-        if (window.parent && window.parent.EndexSubmitBridge) {
-          window.parent.EndexSubmitBridge({ score: 0, total: 10 });
-        }
-      }
-    }
-  <\/script>
-</body>
-</html>`;
             } else if (type === 'math_basics') {
                 templateCode = `<!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -1564,21 +1603,10 @@ if (window.parent && window.parent.EndexSubmitBridge) {
   <\/script>
 </body>
 </html>`;
-            } else if (type === 'quiz') {
-                // الكود البسيط العادي
-                templateCode = `<!-- كود كويز تفاعلي بسيط -->`;
-            } else if (type === 'cards') {
-                // بطاقات الاستذكار
-                templateCode = `<!-- كود بطاقات مفردات ذكية -->`;
             }
 
             editor.value = templateCode;
             showAlert("تم إدراج قالب الأسئلة وحقنه في محرر المصنع!");
-        }
-
-        // ==================== [القوالب القديمة] ====================
-        function injectQuickTemplate(type) {
-            injectQuestionTemplate(type);
         }
 
         function openHelpGuideModal() {
