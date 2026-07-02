@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DeepSeek X | منصة النشر الثورية</title>
+    <title>DeepSeek X3 Autonomous Publisher</title>
     <style>
         :root {
             --bg: #0a0e14;
@@ -11,11 +11,9 @@
             --border: #1e2a38;
             --text: #c9d1d9;
             --primary: #3b8cff;
-            --primary-glow: rgba(59,140,255,0.3);
             --btn-bg: #1f6feb;
             --btn-hover: #388bfd;
             --danger: #da3633;
-            --danger-hover: #f85149;
         }
         .light-mode {
             --bg: #f5f7fa;
@@ -23,7 +21,6 @@
             --border: #d0d7de;
             --text: #1f2328;
             --primary: #0052cc;
-            --primary-glow: rgba(0,82,204,0.15);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -44,19 +41,14 @@
             align-items: center;
             flex-wrap: wrap;
             gap: 1rem;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
         header h1 {
-            font-size: 1.6rem;
-            font-weight: 800;
+            font-size: 1.5rem;
             background: linear-gradient(135deg, #58a6ff, #8b5cf6);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
         }
-        button, .btn {
+        button {
             background: var(--btn-bg);
             border: none;
             padding: 0.55rem 1.2rem;
@@ -66,133 +58,137 @@
             font-weight: 600;
             transition: all 0.2s;
             white-space: nowrap;
-            font-size: 0.9rem;
         }
-        button:hover { background: var(--btn-hover); transform: translateY(-1px); box-shadow: 0 4px 12px var(--primary-glow); }
-        button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); box-shadow: none; }
-        button.secondary:hover { background: rgba(255,255,255,0.05); transform: none; }
+        button:hover { background: var(--btn-hover); }
+        button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); }
         button.danger { background: var(--danger); }
-        button.danger:hover { background: var(--danger-hover); }
 
         .layout { display: flex; flex: 1; height: calc(100vh - 70px); overflow: hidden; }
-
-        /* الشريط الجانبي المطور */
         .sidebar {
             width: 340px;
             background: var(--surface);
             border-left: 1px solid var(--border);
+            padding: 1rem;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
-            overflow-y: auto;
+            gap: 1rem;
+        }
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             padding: 1rem;
-            gap: 1.2rem;
-            transition: all 0.2s;
+            gap: 0.8rem;
+            overflow: hidden;
         }
-        .sidebar h3 {
-            font-size: 1rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            color: var(--text);
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-        }
-        .section { background: var(--bg); padding: 1rem; border-radius: 10px; border: 1px solid var(--border); }
-        .file-list { list-style: none; max-height: 180px; overflow-y: auto; margin-top: 0.3rem; }
-        .file-list li {
-            padding: 0.5rem 0.7rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: background 0.15s;
-        }
-        .file-list li:hover { background: rgba(59,140,255,0.15); }
-
-        /* منطقة السحب والإفلات */
-        .drop-zone {
-            border: 2px dashed var(--border);
-            border-radius: 10px;
-            padding: 1.5rem;
-            text-align: center;
-            color: var(--text);
-            opacity: 0.7;
-            transition: all 0.2s;
-            cursor: pointer;
-            margin-top: 0.5rem;
-        }
-        .drop-zone.drag-over { border-color: var(--primary); opacity: 1; background: rgba(59,140,255,0.05); }
-
-        /* المحرر والمعاينة */
-        .main { flex: 1; display: flex; flex-direction: column; padding: 1rem; gap: 0.8rem; overflow: hidden; }
         .editor-preview { display: flex; gap: 1rem; flex: 1; min-height: 0; }
         .editor-section, .preview-section {
-            flex: 1; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0;
-            background: var(--surface); padding: 1rem; border-radius: 10px; border: 1px solid var(--border);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: var(--surface);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid var(--border);
         }
         .tabs { display: flex; gap: 0.3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
-        .tabs button { background: transparent; color: var(--text); border: none; opacity: 0.6; border-radius: 0; padding: 0.4rem 0.8rem; }
+        .tabs button { background: transparent; color: var(--text); border: none; opacity: 0.6; padding: 0.4rem 0.8rem; }
         .tabs button.active { opacity: 1; border-bottom: 2px solid var(--primary); color: var(--primary); }
         textarea {
-            flex: 1; background: #0b1119; border: 1px solid var(--border); border-radius: 6px;
-            color: #c9d1d9; padding: 0.8rem; font-family: 'JetBrains Mono', 'Consolas', monospace;
-            font-size: 13px; resize: none; direction: ltr; text-align: left; line-height: 1.5;
+            flex: 1;
+            background: #0b1119;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #c9d1d9;
+            padding: 0.8rem;
+            font-family: 'Consolas', monospace;
+            font-size: 13px;
+            resize: none;
+            direction: ltr;
+            text-align: left;
         }
-        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); }
         iframe { flex: 1; border: 1px solid var(--border); border-radius: 6px; background: white; }
         .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; margin-top: 0.3rem; }
         input, select {
-            background: #0b1119; border: 1px solid var(--border); padding: 0.5rem 0.7rem;
-            color: var(--text); border-radius: 6px; font-family: inherit; font-size: 0.9rem;
+            background: #0b1119;
+            border: 1px solid var(--border);
+            padding: 0.5rem;
+            color: var(--text);
+            border-radius: 6px;
+            font-family: inherit;
         }
-        .status { font-size: 0.9rem; font-weight: 500; margin-right: auto; }
+        .status { font-size: 0.9rem; font-weight: 500; }
         .success { color: #3fb950; }
         .error { color: #f85149; }
         .info { color: #58a6ff; }
 
-        @media (max-width: 768px) {
-            .layout { flex-direction: column; }
-            .sidebar { width: 100%; max-height: 300px; }
-            .editor-preview { flex-direction: column; }
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+            color: var(--text);
+            opacity: 0.7;
+            cursor: pointer;
+            margin-top: 0.3rem;
         }
+        .drop-zone.drag-over { border-color: var(--primary); opacity: 1; background: rgba(59,140,255,0.05); }
     </style>
 </head>
 <body>
     <header>
-        <h1>💠 DeepSeek X Publisher</h1>
-        <div style="display:flex; gap:0.5rem; align-items:center;">
+        <h1>💠 DeepSeek X3 Autonomous</h1>
+        <div style="display:flex; gap:0.5rem;">
             <button onclick="toggleTheme()" class="secondary">🌓</button>
             <button onclick="toggleSettings()" class="secondary">⚙️ الإعدادات</button>
         </div>
     </header>
 
-    <!-- إعدادات مخفية -->
     <div id="settingsPanel" style="display:none; background:var(--surface); border-bottom:1px solid var(--border); padding:1rem;">
-        <div style="display:flex; gap:1rem; flex-wrap:wrap; max-width:1000px; margin:0 auto;">
-            <input id="username" placeholder="اسم المستخدم">
-            <input id="repo" placeholder="اسم المستودع">
-            <input id="token" type="password" placeholder="رمز الوصول (Token)">
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; max-width:800px; margin:0 auto; align-items:center;">
+            <input id="username" placeholder="اسم المستخدم" style="flex:1;">
+            <input id="token" type="password" placeholder="رمز الوصول (Token)" style="flex:2;">
             <button onclick="saveSettings()">💾 حفظ</button>
         </div>
     </div>
 
     <div class="layout">
-        <!-- الشريط الجانبي الثوري -->
         <div class="sidebar">
-            <div class="section">
-                <h3>📁 المستندات</h3>
-                <input id="fileSearch" placeholder="🔍 بحث..." oninput="filterFiles()" style="width:100%; margin-bottom:0.4rem;">
-                <ul class="file-list" id="fileList"><li>الرجاء إدخال الإعدادات</li></ul>
-                <button onclick="fetchRepoFiles()" style="width:100%; margin-top:0.4rem;" class="secondary">🔄 تحديث</button>
-                <button onclick="createNewFile()" style="width:100%; margin-top:0.3rem;">➕ صفحة جديدة</button>
+            <div>
+                <h3>📁 مستودعاتي</h3>
+                <button onclick="fetchRepos()" style="width:100%; margin-bottom:0.5rem;" class="secondary">🔄 تحديث</button>
+                <select id="repoSelect" onchange="onRepoChange()" style="width:100%; margin-bottom:0.5rem;">
+                    <option value="">-- اختر مستودعاً --</option>
+                </select>
+                <div style="display:flex; gap:0.3rem;">
+                    <input id="newRepoName" placeholder="مستودع جديد" style="flex:1;">
+                    <button onclick="createNewRepo()">➕ إنشاء</button>
+                </div>
             </div>
 
-            <div class="section">
+            <div>
+                <h3>📄 الملفات</h3>
+                <input id="fileSearch" placeholder="🔍 بحث..." oninput="filterFiles()" style="width:100%; margin-bottom:0.3rem;">
+                <ul class="file-list" id="fileList" style="list-style:none; max-height:150px; overflow-y:auto; border:1px solid var(--border); border-radius:6px; background:var(--bg);">
+                    <li style="padding:0.5rem;">اختر مستودعاً</li>
+                </ul>
+            </div>
+
+            <div>
+                <h3>📦 رفع الوسائط</h3>
+                <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileUpload').click()">
+                    اسحب وأفلت ملفات هنا
+                    <input type="file" id="fileUpload" multiple style="display:none;" onchange="handleFiles(this.files)">
+                </div>
+                <ul class="file-list" id="assetsList" style="max-height:100px; margin-top:0.3rem;"></ul>
+            </div>
+
+            <div>
                 <h3>⚡ قوالب</h3>
                 <select id="templateSelect" onchange="injectTemplate()" style="width:100%;">
-                    <option value="">-- اختر قالبًا --</option>
+                    <option value="">-- اختر قالباً --</option>
                     <option value="quiz">📝 اختبار</option>
                     <option value="landing">📄 صفحة هبوط</option>
                     <option value="gallery">🖼️ معرض صور</option>
@@ -200,18 +196,7 @@
                 </select>
             </div>
 
-            <div class="section">
-                <h3>📦 رفع ملفات وسائط</h3>
-                <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileUpload').click()">
-                    <span>اسحب وأفلت ملفات هنا<br>أو انقر للاختيار</span>
-                    <input type="file" id="fileUpload" multiple style="display:none;" onchange="handleFiles(this.files)">
-                </div>
-                <ul class="file-list" id="assetsList" style="margin-top:0.5rem; max-height:120px;">
-                    <li style="color:#8b949e;">لم يتم رفع أصول بعد</li>
-                </ul>
-            </div>
-
-            <div class="section">
+            <div>
                 <h3>🏷️ SEO</h3>
                 <input id="pageTitle" placeholder="عنوان الصفحة" style="width:100%; margin-bottom:0.3rem;">
                 <input id="metaDescription" placeholder="وصف الصفحة" style="width:100%;">
@@ -219,7 +204,6 @@
             <button onclick="downloadCurrent()" style="width:100%;" class="secondary">⬇️ تحميل الصفحة</button>
         </div>
 
-        <!-- المحرر والمعاينة -->
         <div class="main">
             <div class="editor-preview">
                 <div class="editor-section">
@@ -228,51 +212,45 @@
                         <button onclick="switchTab('css')">CSS</button>
                         <button onclick="switchTab('js')">JS</button>
                     </div>
-                    <textarea id="htmlCode" placeholder="كود HTML هنا..."><h1>مرحباً بالعالم!</h1>
-<p>هذه صفحة تجريبية من DeepSeek X</p></textarea>
-                    <textarea id="cssCode" style="display:none;" placeholder="/* CSS هنا */">body { font-family: sans-serif; padding: 2rem; background: #f0f2f5; text-align: center; direction: rtl; }</textarea>
-                    <textarea id="jsCode" style="display:none;" placeholder="// JavaScript هنا">console.log('DeepSeek X جاهز!');</textarea>
+                    <textarea id="htmlCode" placeholder="كود HTML..."><h1>مرحباً بالعالم!</h1>
+<p>DeepSeek X3</p></textarea>
+                    <textarea id="cssCode" style="display:none;" placeholder="/* CSS */">body { font-family: sans-serif; padding: 2rem; background: #f0f2f5; text-align: center; direction: rtl; }</textarea>
+                    <textarea id="jsCode" style="display:none;" placeholder="// JS">console.log('X3');</textarea>
                 </div>
                 <div class="preview-section">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:0.3rem;">
                         <span>👁️ معاينة</span>
                         <button onclick="toggleMobilePreview()" class="secondary">📱 جوال</button>
                     </div>
                     <iframe id="previewFrame"></iframe>
                 </div>
             </div>
+
             <div class="actions">
-                <input id="customFilename" placeholder="اسم الملف للنشر" style="width:180px;">
+                <input id="customFilename" placeholder="اسم الملف" style="width:180px;" value="index.html">
                 <button onclick="publishPage()">📤 نشر</button>
-                <button onclick="renameFile()" class="secondary">✏️ إعادة تسمية</button>
-                <button onclick="deleteCurrentFile()" class="danger">🗑️ حذف</button>
                 <span id="statusMessage" class="status"></span>
             </div>
         </div>
     </div>
 
     <script>
-        // ======================== الإعدادات الأساسية ========================
-        let settings = JSON.parse(localStorage.getItem('dsx_settings') || '{}');
+        // ==================== الإعدادات ====================
+        let settings = JSON.parse(localStorage.getItem('dsx3_settings') || '{}');
+        let currentRepo = null;
         let allFiles = [];
         let currentSha = null;
-        let uploadedAssets = []; // قائمة الملفات المرفوعة (محلياً وسحابياً)
 
-        // تعبئة الحقول من الإعدادات المحفوظة
         document.getElementById('username').value = settings.username || '';
-        document.getElementById('repo').value = settings.repo || '';
         document.getElementById('token').value = settings.token || '';
 
         function saveSettings() {
-            settings = {
-                username: document.getElementById('username').value.trim(),
-                repo: document.getElementById('repo').value.trim(),
-                token: document.getElementById('token').value.trim()
-            };
-            localStorage.setItem('dsx_settings', JSON.stringify(settings));
-            showStatus('✅ تم الحفظ والمزامنة', 'success');
-            fetchRepoFiles();
-            fetchAssets(); // جلب الأصول أيضاً
+            settings.username = document.getElementById('username').value.trim();
+            settings.token = document.getElementById('token').value.trim();
+            localStorage.setItem('dsx3_settings', JSON.stringify(settings));
+            showStatus('✅ تم الحفظ', 'success');
+            fetchRepos();
+            toggleSettings();
         }
 
         function toggleSettings() {
@@ -280,14 +258,12 @@
             p.style.display = p.style.display === 'none' ? 'block' : 'none';
         }
 
-        // ======================== المظهر ========================
         function toggleTheme() {
             document.body.classList.toggle('light-mode');
-            localStorage.setItem('dsx_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+            localStorage.setItem('dsx3_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
         }
-        if (localStorage.getItem('dsx_theme') === 'light') document.body.classList.add('light-mode');
+        if (localStorage.getItem('dsx3_theme') === 'light') document.body.classList.add('light-mode');
 
-        // ======================== التبويبات ========================
         function switchTab(tab) {
             document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
@@ -296,12 +272,12 @@
             document.getElementById('jsCode').style.display = tab === 'js' ? 'block' : 'none';
         }
 
-        // ======================== بناء الصفحة والمعاينة ========================
+        // ==================== بناء الصفحة ====================
         function buildFullHTML() {
             const html = document.getElementById('htmlCode').value;
             const css = document.getElementById('cssCode').value;
             const js = document.getElementById('jsCode').value;
-            const title = document.getElementById('pageTitle').value || 'DeepSeek X Page';
+            const title = document.getElementById('pageTitle').value || 'DeepSeek Page';
             const desc = document.getElementById('metaDescription').value || '';
             return `<!DOCTYPE html>
 <html lang="ar">
@@ -325,21 +301,10 @@ ${html}
         }
         document.querySelectorAll('textarea').forEach(ta => {
             ta.addEventListener('input', updatePreview);
-            ta.addEventListener('keydown', function(e) {
-                if (e.key === 'Tab') {
-                    e.preventDefault();
-                    const start = this.selectionStart;
-                    const end = this.selectionEnd;
-                    this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
-                    this.selectionStart = this.selectionEnd = start + 4;
-                    updatePreview();
-                }
-            });
         });
         document.getElementById('pageTitle').addEventListener('input', updatePreview);
-        document.getElementById('metaDescription').addEventListener('input', updatePreview);
+        updatePreview();
 
-        // ======================== المسودة ========================
         function saveDraft() {
             const draft = {
                 html: document.getElementById('htmlCode').value,
@@ -350,10 +315,10 @@ ${html}
                 filename: document.getElementById('customFilename').value,
                 sha: currentSha
             };
-            localStorage.setItem('dsx_draft', JSON.stringify(draft));
+            localStorage.setItem('dsx3_draft', JSON.stringify(draft));
         }
         function loadDraft() {
-            const draft = JSON.parse(localStorage.getItem('dsx_draft'));
+            const draft = JSON.parse(localStorage.getItem('dsx3_draft'));
             if (draft) {
                 document.getElementById('htmlCode').value = draft.html || '';
                 document.getElementById('cssCode').value = draft.css || '';
@@ -366,77 +331,137 @@ ${html}
             }
         }
 
-        // ======================== الترميز الآمن ========================
-        function encodeBase64(str) {
-            const bytes = new TextEncoder().encode(str);
-            let binary = '';
-            bytes.forEach(b => binary += String.fromCharCode(b));
-            return btoa(binary);
-        }
-        function decodeBase64(b64) {
-            const binary = atob(b64);
-            const bytes = new Uint8Array(binary.length);
-            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-            return new TextDecoder().decode(bytes);
+        // ==================== إدارة المستودعات ====================
+        async function fetchRepos() {
+            if (!settings.username || !settings.token) return;
+            const select = document.getElementById('repoSelect');
+            select.innerHTML = '<option value="">⏳ جاري الجلب...</option>';
+            try {
+                const res = await fetch(`https://api.github.com/users/${settings.username}/repos?per_page=100`, {
+                    headers: { Authorization: `token ${settings.token}` }
+                });
+                if (!res.ok) throw new Error('فشل جلب المستودعات');
+                const repos = await res.json();
+                select.innerHTML = '<option value="">-- اختر مستودعاً --</option>';
+                repos.forEach(repo => {
+                    const opt = document.createElement('option');
+                    opt.value = repo.name;
+                    opt.textContent = repo.name;
+                    select.appendChild(opt);
+                });
+                if (currentRepo) {
+                    select.value = currentRepo.repo;
+                    await fetchRepoFiles();
+                }
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+            }
         }
 
-        // ======================== إدارة الملفات ========================
+        async function createNewRepo() {
+            if (!settings.username || !settings.token) return;
+            const repoName = document.getElementById('newRepoName').value.trim();
+            if (!repoName) return showStatus('❌ أدخل اسماً', 'error');
+            showStatus('⏳ إنشاء مستودع...', 'info');
+            try {
+                await fetch('https://api.github.com/user/repos', {
+                    method: 'POST',
+                    headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: repoName, auto_init: false, private: false })
+                });
+                await new Promise(r => setTimeout(r, 1000));
+                const defaultHTML = '<!DOCTYPE html><html><head><meta charset="UTF-8"><title>New</title></head><body></body></html>';
+                const base64 = btoa(unescape(encodeURIComponent(defaultHTML)));
+                await fetch(`https://api.github.com/repos/${settings.username}/${repoName}/contents/index.html`, {
+                    method: 'PUT',
+                    headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: 'init', content: base64 })
+                });
+                await fetch(`https://api.github.com/repos/${settings.username}/${repoName}/pages`, {
+                    method: 'POST',
+                    headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ source: { branch: "main", path: "/" } })
+                });
+                await fetchRepos();
+                document.getElementById('repoSelect').value = repoName;
+                currentRepo = { owner: settings.username, repo: repoName };
+                document.getElementById('newRepoName').value = '';
+                showStatus(`🚀 تم إنشاء المستودع ${repoName}`, 'success');
+                fetchRepoFiles();
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+            }
+        }
+
+        function onRepoChange() {
+            const repoName = document.getElementById('repoSelect').value;
+            if (repoName) {
+                currentRepo = { owner: settings.username, repo: repoName };
+                fetchRepoFiles();
+                fetchAssets();
+            } else {
+                currentRepo = null;
+                document.getElementById('fileList').innerHTML = '<li>اختر مستودعاً</li>';
+                document.getElementById('assetsList').innerHTML = '';
+            }
+        }
+
+        // ==================== إدارة الملفات ====================
+        async function fetchRepoFiles() {
+            if (!currentRepo) return;
+            const list = document.getElementById('fileList');
+            list.innerHTML = '<li>⏳ جاري الجلب...</li>';
+            try {
+                const res = await fetch(`https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/git/trees/main?recursive=1`, {
+                    headers: { Authorization: `token ${settings.token}` }
+                });
+                if (!res.ok) throw new Error('فشل');
+                const data = await res.json();
+                allFiles = data.tree.filter(f => f.path.endsWith('.html') && !f.path.startsWith('assets/'));
+                renderFileList(allFiles);
+            } catch (e) {
+                list.innerHTML = `<li>❌ ${e.message}</li>`;
+            }
+        }
+
         function filterFiles() {
             const query = document.getElementById('fileSearch').value.toLowerCase();
-            const filtered = allFiles.filter(f => f.path.toLowerCase().includes(query) && !f.path.startsWith('assets/'));
+            const filtered = allFiles.filter(f => f.path.toLowerCase().includes(query));
             renderFileList(filtered);
         }
+
         function renderFileList(files) {
             const list = document.getElementById('fileList');
-            if (files.length === 0) {
-                list.innerHTML = '<li style="color:#8b949e; justify-content:center;">لا توجد ملفات</li>';
+            if (!files.length) {
+                list.innerHTML = '<li>لا توجد ملفات</li>';
                 return;
             }
             list.innerHTML = files.map(f => `
-                <li>
-                    <span style="flex:1; direction:ltr; text-align:left; overflow:hidden; text-overflow:ellipsis;" title="${f.path}">📄 ${f.path}</span>
-                    <div>
-                        <button onclick="loadFile('${f.path}')" class="secondary" style="padding:0.2rem 0.5rem; font-size:0.8rem;">فتح</button>
-                        <a href="https://${settings.username}.github.io/${settings.repo}/${f.path}" target="_blank" class="secondary" style="padding:0.2rem 0.5rem; font-size:0.8rem; text-decoration:none;">🔗</a>
-                    </div>
+                <li style="display:flex; justify-content:space-between; padding:0.3rem 0.5rem;">
+                    <span style="flex:1; direction:ltr; text-align:left; overflow:hidden;">${f.path}</span>
+                    <button onclick="loadFile('${f.path}')" class="secondary" style="padding:0.2rem 0.5rem; font-size:0.7rem;">فتح</button>
                 </li>
             `).join('');
         }
 
-        async function fetchRepoFiles() {
-            if (!settings.token || !settings.username || !settings.repo) return;
-            const list = document.getElementById('fileList');
-            list.innerHTML = '<li>⏳ جاري الجلب...</li>';
-            try {
-                const res = await fetch(`https://api.github.com/repos/${settings.username}/${settings.repo}/git/trees/main?recursive=1`, {
-                    headers: { Authorization: `token ${settings.token}` }
-                });
-                if (!res.ok) throw new Error('فشل الاتصال. تحقق من التوكن والمستودع.');
-                const data = await res.json();
-                allFiles = data.tree.filter(f => f.path.endsWith('.html') || f.path.startsWith('assets/'));
-                const htmlFiles = allFiles.filter(f => f.path.endsWith('.html') && !f.path.startsWith('assets/'));
-                renderFileList(htmlFiles);
-                // تحديث قائمة الأصول
-                fetchAssets();
-            } catch (e) {
-                list.innerHTML = `<li style="color:var(--danger);">❌ ${e.message}</li>`;
-            }
-        }
-
         async function loadFile(path) {
+            if (!currentRepo) return;
             showStatus(`⏳ تحميل ${path}...`, 'info');
             try {
-                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${path}`;
+                const url = `https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/contents/${path}`;
                 const res = await fetch(url, { headers: { Authorization: `token ${settings.token}` } });
-                if (!res.ok) throw new Error('تعذر تحميل الملف');
+                if (!res.ok) throw new Error('فشل التحميل');
                 const data = await res.json();
                 currentSha = data.sha;
-                const content = decodeBase64(data.content);
+                const binary = atob(data.content);
+                const bytes = new Uint8Array(binary.length);
+                for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+                const content = new TextDecoder().decode(bytes);
 
-                const titleMatch = content.match(/<title>([\s\S]*?)<\/title>/i);
-                const descMatch = content.match(/<meta name="description" content="([^"]*)"/i);
-                document.getElementById('pageTitle').value = titleMatch ? titleMatch[1].trim() : '';
-                document.getElementById('metaDescription').value = descMatch ? descMatch[1].trim() : '';
+                const titleMatch = content.match(/<title>(.*?)<\/title>/i);
+                const descMatch = content.match(/<meta name="description" content="(.*?)"/i);
+                document.getElementById('pageTitle').value = titleMatch ? titleMatch[1] : '';
+                document.getElementById('metaDescription').value = descMatch ? descMatch[1] : '';
 
                 const styleMatch = content.match(/<style>([\s\S]*?)<\/style>/i);
                 const scriptMatch = content.match(/<script>([\s\S]*?)<\/script>/i);
@@ -445,7 +470,6 @@ ${html}
                 document.getElementById('jsCode').value = scriptMatch ? scriptMatch[1].trim() : '';
                 document.getElementById('htmlCode').value = bodyMatch ? bodyMatch[1].replace(/<script>[\s\S]*?<\/script>/gi, '').trim() : content;
                 document.getElementById('customFilename').value = path;
-
                 updatePreview();
                 showStatus(`✅ تم فتح ${path}`, 'success');
             } catch (e) {
@@ -453,268 +477,186 @@ ${html}
             }
         }
 
-        // ======================== رفع الملفات الثنائية (ثوري) ========================
+        // ==================== رفع الوسائط ====================
         const dropZone = document.getElementById('dropZone');
-        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
         dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-        dropZone.addEventListener('drop', (e) => {
+        dropZone.addEventListener('drop', e => {
             e.preventDefault();
             dropZone.classList.remove('drag-over');
             handleFiles(e.dataTransfer.files);
         });
 
         async function handleFiles(fileList) {
-            if (!settings.token || !settings.username || !settings.repo) {
-                showStatus('❌ املأ الإعدادات أولاً', 'error');
-                return;
-            }
-            showStatus('⏳ جاري رفع الملفات...', 'info');
+            if (!currentRepo) return showStatus('❌ اختر مستودعاً أولاً', 'error');
             for (let file of fileList) {
                 try {
                     const reader = new FileReader();
-                    const base64Promise = new Promise((resolve) => {
+                    const base64Promise = new Promise(resolve => {
                         reader.onload = () => resolve(reader.result.split(',')[1]);
                     });
                     reader.readAsDataURL(file);
                     const base64 = await base64Promise;
-
                     const assetPath = `assets/${file.name}`;
-                    const apiUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${assetPath}`;
+                    const apiUrl = `https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/contents/${assetPath}`;
 
-                    // تحقق من وجود الملف مسبقاً للحصول على SHA إذا كان موجوداً
                     let sha = null;
-                    const checkRes = await fetch(apiUrl, { headers: { Authorization: `token ${settings.token}` } });
-                    if (checkRes.ok) {
-                        const checkData = await checkRes.json();
+                    const check = await fetch(apiUrl, { headers: { Authorization: `token ${settings.token}` } });
+                    if (check.ok) {
+                        const checkData = await check.json();
                         sha = checkData.sha;
                     }
 
-                    const body = {
-                        message: `رفع ${file.name} عبر DeepSeek X`,
-                        content: base64
-                    };
+                    const body = { message: `رفع ${file.name}`, content: base64 };
                     if (sha) body.sha = sha;
 
                     const res = await fetch(apiUrl, {
                         method: 'PUT',
-                        headers: {
-                            'Authorization': `token ${settings.token}`,
-                            'Content-Type': 'application/json'
-                        },
+                        headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify(body)
                     });
-                    if (!res.ok) {
-                        const err = await res.json();
-                        throw new Error(`فشل رفع ${file.name}: ${err.message}`);
-                    }
-                    showStatus(`✅ تم رفع ${file.name}`, 'success');
+                    if (!res.ok) throw new Error('فشل الرفع');
                 } catch (e) {
                     showStatus(`❌ ${e.message}`, 'error');
                 }
             }
+            showStatus('✅ تم رفع الملفات', 'success');
             fetchAssets();
         }
 
         async function fetchAssets() {
-            if (!settings.token || !settings.username || !settings.repo) return;
+            if (!currentRepo) return;
+            const list = document.getElementById('assetsList');
+            list.innerHTML = '<li>⏳...</li>';
             try {
-                const res = await fetch(`https://api.github.com/repos/${settings.username}/${settings.repo}/git/trees/main?recursive=1`, {
+                const res = await fetch(`https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/git/trees/main?recursive=1`, {
                     headers: { Authorization: `token ${settings.token}` }
                 });
-                if (!res.ok) return;
                 const data = await res.json();
                 const assets = data.tree.filter(f => f.path.startsWith('assets/'));
-                uploadedAssets = assets;
-                const list = document.getElementById('assetsList');
-                if (assets.length === 0) {
-                    list.innerHTML = '<li style="color:#8b949e;">لا توجد أصول مرفوعة</li>';
-                } else {
-                    list.innerHTML = assets.map(a => `
-                        <li>
-                            <span style="flex:1; direction:ltr; text-align:left; overflow:hidden; text-overflow:ellipsis;" title="${a.path}">📎 ${a.path.replace('assets/', '')}</span>
-                            <button onclick="copyAssetUrl('${a.path}')" class="secondary" style="padding:0.2rem 0.5rem; font-size:0.7rem;">نسخ الرابط</button>
-                        </li>
-                    `).join('');
-                }
+                list.innerHTML = assets.map(a => `
+                    <li style="display:flex; justify-content:space-between; padding:0.2rem 0.5rem;">
+                        <span style="direction:ltr; text-align:left;">${a.path.replace('assets/', '')}</span>
+                        <button onclick="copyAssetUrl('${a.path}')" class="secondary" style="padding:0.1rem 0.4rem; font-size:0.7rem;">نسخ الرابط</button>
+                    </li>
+                `).join('') || '<li>لا توجد أصول</li>';
             } catch (e) {}
         }
 
         function copyAssetUrl(path) {
-            const url = `https://${settings.username}.github.io/${settings.repo}/${path}`;
-            navigator.clipboard.writeText(url).then(() => {
-                showStatus('📋 تم نسخ رابط الأصل', 'success');
-            });
+            const url = `https://${currentRepo.owner}.github.io/${currentRepo.repo}/${path}`;
+            navigator.clipboard.writeText(url).then(() => showStatus('📋 تم نسخ الرابط', 'success'));
         }
 
-        // ======================== النشر ========================
+        // ==================== النشر ====================
         async function publishPage() {
-            if (!settings.token || !settings.username || !settings.repo) {
-                showStatus('❌ املأ الإعدادات أولاً', 'error');
-                toggleSettings();
+            if (!settings.username || !settings.token) {
+                showStatus('❌ احفظ الإعدادات', 'error');
                 return;
             }
             let filename = document.getElementById('customFilename').value.trim();
-            if (!filename) filename = `page_${Date.now()}.html`;
+            if (!filename) filename = 'index.html';
             if (!filename.endsWith('.html')) filename += '.html';
 
-            const content = buildFullHTML();
-            const base64 = encodeBase64(content);
-            const apiUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${filename}`;
+            if (!currentRepo) {
+                let newRepoName = document.getElementById('newRepoName').value.trim();
+                if (!newRepoName) newRepoName = 'page-' + Date.now();
+                showStatus('⏳ إنشاء مستودع جديد...', 'info');
+                try {
+                    await fetch('https://api.github.com/user/repos', {
+                        method: 'POST',
+                        headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name: newRepoName, auto_init: false, private: false })
+                    });
+                    await new Promise(r => setTimeout(r, 1000));
+                    const content = buildFullHTML();
+                    const base64 = btoa(unescape(encodeURIComponent(content)));
+                    await fetch(`https://api.github.com/repos/${settings.username}/${newRepoName}/contents/${filename}`, {
+                        method: 'PUT',
+                        headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ message: 'نشر', content: base64 })
+                    });
+                    await fetch(`https://api.github.com/repos/${settings.username}/${newRepoName}/pages`, {
+                        method: 'POST',
+                        headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ source: { branch: "main", path: "/" } })
+                    });
+                    await fetchRepos();
+                    document.getElementById('repoSelect').value = newRepoName;
+                    currentRepo = { owner: settings.username, repo: newRepoName };
+                    const pageUrl = `https://${settings.username}.github.io/${newRepoName}/${filename}`;
+                    showStatus(`🚀 تم! <a href="${pageUrl}" target="_blank">${pageUrl}</a>`, 'success');
+                } catch (e) {
+                    showStatus(`❌ ${e.message}`, 'error');
+                }
+                return;
+            }
 
+            const content = buildFullHTML();
+            const base64 = btoa(unescape(encodeURIComponent(content)));
+            const apiUrl = `https://api.github.com/repos/${currentRepo.owner}/${currentRepo.repo}/contents/${filename}`;
             showStatus('⏳ جاري النشر...', 'info');
             try {
-                // إنشاء نسخة احتياطية قبل النشر إذا كان الملف موجوداً
                 let sha = currentSha;
                 if (!sha) {
                     const check = await fetch(apiUrl, { headers: { Authorization: `token ${settings.token}` } });
                     if (check.ok) {
                         const checkData = await check.json();
                         sha = checkData.sha;
-                        // حفظ نسخة احتياطية
-                        const backupPath = `${filename}.backup.html`;
-                        const backupUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${backupPath}`;
-                        await fetch(backupUrl, {
-                            method: 'PUT',
-                            headers: {
-                                'Authorization': `token ${settings.token}`,
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                message: `نسخة احتياطية تلقائية قبل تعديل ${filename}`,
-                                content: checkData.content
-                            })
-                        });
                     }
                 }
-
-                const body = { message: `نشر ${filename} عبر DeepSeek X`, content: base64 };
+                const body = { message: 'نشر', content: base64 };
                 if (sha) body.sha = sha;
-
                 const putRes = await fetch(apiUrl, {
                     method: 'PUT',
-                    headers: {
-                        'Authorization': `token ${settings.token}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { Authorization: `token ${settings.token}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
                 });
-                if (!putRes.ok) {
-                    const err = await putRes.json();
-                    throw new Error(err.message);
-                }
+                if (!putRes.ok) throw new Error((await putRes.json()).message);
                 const putData = await putRes.json();
                 currentSha = putData.content.sha;
-                saveDraft();
-
-                const pageUrl = `https://${settings.username}.github.io/${settings.repo}/${filename}`;
-                showStatus(`🚀 نُشر! <a href="${pageUrl}" target="_blank" style="color:var(--primary);">${pageUrl}</a>`, 'success');
+                const pageUrl = `https://${currentRepo.owner}.github.io/${currentRepo.repo}/${filename}`;
+                showStatus(`🚀 نُشر! <a href="${pageUrl}" target="_blank">${pageUrl}</a>`, 'success');
                 fetchRepoFiles();
             } catch (e) {
                 showStatus(`❌ ${e.message}`, 'error');
             }
         }
 
-        // ======================== إعادة التسمية والحذف ========================
-        async function renameFile() {
-            const oldName = document.getElementById('customFilename').value.trim();
-            if (!oldName) return showStatus('⚠️ لا يوجد ملف', 'error');
-            const newName = prompt('الاسم الجديد:', oldName);
-            if (!newName || newName === oldName) return;
-            try {
-                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${oldName}`;
-                const res = await fetch(url, { headers: { Authorization: `token ${settings.token}` } });
-                if (!res.ok) throw new Error('الملف غير موجود');
-                const data = await res.json();
-                // إنشاء جديد
-                const newUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${newName}`;
-                await fetch(newUrl, {
-                    method: 'PUT',
-                    headers: { 'Authorization': `token ${settings.token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: `إعادة تسمية إلى ${newName}`, content: data.content })
-                });
-                // حذف القديم
-                await fetch(url, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `token ${settings.token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: `حذف ${oldName}`, sha: data.sha })
-                });
-                document.getElementById('customFilename').value = newName;
-                currentSha = null;
-                showStatus(`✅ تمت إعادة التسمية`, 'success');
-                fetchRepoFiles();
-            } catch (e) { showStatus(`❌ ${e.message}`, 'error'); }
-        }
-
-        async function deleteCurrentFile() {
-            const filename = document.getElementById('customFilename').value.trim();
-            if (!filename) return showStatus('⚠️ لا يوجد ملف', 'error');
-            if (!confirm(`حذف ${filename} من المستودع؟`)) return;
-            try {
-                let sha = currentSha;
-                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${filename}`;
-                if (!sha) {
-                    const res = await fetch(url, { headers: { Authorization: `token ${settings.token}` } });
-                    if (!res.ok) throw new Error('الملف غير موجود');
-                    const data = await res.json();
-                    sha = data.sha;
-                }
-                await fetch(url, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `token ${settings.token}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ message: `حذف ${filename}`, sha: sha })
-                });
-                showStatus('🗑️ تم الحذف', 'success');
-                currentSha = null;
-                createNewFile();
-                fetchRepoFiles();
-            } catch (e) { showStatus(`❌ ${e.message}`, 'error'); }
-        }
-
-        // ======================== القوالب ========================
+        // ==================== القوالب ====================
         function injectTemplate() {
             const type = document.getElementById('templateSelect').value;
             if (type === 'quiz') {
-                document.getElementById('htmlCode').value = `<h2>اختبار سريع</h2><p>ما عاصمة السعودية؟</p>
+                document.getElementById('htmlCode').value = `<h2>اختبار</h2><p>ما عاصمة السعودية؟</p>
 <button onclick="check('الرياض')">الرياض</button> <button onclick="check('جدة')">جدة</button>
 <p id="result"></p>`;
                 document.getElementById('cssCode').value = 'body{font-family:sans-serif;text-align:center;padding:2rem;} button{margin:0.5rem;padding:0.8rem 2rem;}';
                 document.getElementById('jsCode').value = `function check(a){document.getElementById('result').textContent= a==='الرياض'?'✅ صحيح':'❌ خطأ';}`;
             } else if (type === 'landing') {
-                document.getElementById('htmlCode').value = `<header><h1>موقعي الرائع</h1><nav>...</nav></header><main>محتوى رئيسي</main><footer>حقوق 2025</footer>`;
-                document.getElementById('cssCode').value = 'body{font-family:Arial;margin:0;} header{background:#333;color:white;padding:1rem;} footer{background:#eee;text-align:center;padding:1rem;}';
+                document.getElementById('htmlCode').value = `<header><h1>موقعي</h1></header><main>مرحباً</main><footer>حقوق 2025</footer>`;
+                document.getElementById('cssCode').value = 'body{font-family:Arial;} header{background:#333;color:white;padding:1rem;} footer{background:#eee;text-align:center;padding:1rem;}';
                 document.getElementById('jsCode').value = '';
             } else if (type === 'gallery') {
-                document.getElementById('htmlCode').value = `<h2>معرض الصور</h2><div class="gallery"><img src="assets/example.jpg" alt="صورة"><img src="assets/example2.jpg"></div>`;
-                document.getElementById('cssCode').value = '.gallery{display:flex;gap:10px;flex-wrap:wrap;} .gallery img{max-width:200px;border-radius:8px;}';
+                document.getElementById('htmlCode').value = `<h2>معرض</h2><div class="gallery"><img src="assets/1.jpg"><img src="assets/2.jpg"></div>`;
+                document.getElementById('cssCode').value = '.gallery{display:flex;gap:10px;} .gallery img{max-width:200px;border-radius:8px;}';
                 document.getElementById('jsCode').value = '';
-            } else if (type === 'blank') { createNewFile(); return; }
+            } else if (type === 'blank') {
+                document.getElementById('htmlCode').value = '<h1>صفحة جديدة</h1>';
+                document.getElementById('cssCode').value = 'body{font-family:sans-serif;direction:rtl;padding:2rem;}';
+                document.getElementById('jsCode').value = '';
+            }
             updatePreview();
             showStatus('⚡ تم حقن القالب', 'success');
         }
 
-        function createNewFile() {
-            document.getElementById('htmlCode').value = '<h1>صفحة جديدة</h1><p>ابدأ الكتابة...</p>';
-            document.getElementById('cssCode').value = 'body{font-family:sans-serif;direction:rtl;padding:2rem;}';
-            document.getElementById('jsCode').value = '';
-            document.getElementById('pageTitle').value = 'صفحة جديدة';
-            document.getElementById('metaDescription').value = '';
-            document.getElementById('customFilename').value = '';
-            currentSha = null;
-            updatePreview();
-        }
-
-        // ======================== معاينة الجوال ========================
-        let mobileMode = false;
         function toggleMobilePreview() {
-            mobileMode = !mobileMode;
             const frame = document.getElementById('previewFrame');
-            frame.style.maxWidth = mobileMode ? '375px' : '100%';
-            frame.style.margin = mobileMode ? '0 auto' : '0';
-            frame.style.boxShadow = mobileMode ? '0 0 20px rgba(0,0,0,0.4)' : 'none';
+            frame.style.maxWidth = frame.style.maxWidth === '375px' ? '100%' : '375px';
+            frame.style.margin = frame.style.margin === '0px auto' ? '0' : '0 auto';
         }
 
         function downloadCurrent() {
-            const blob = new Blob([buildFullHTML()], {type:'text/html;charset=utf-8'});
+            const blob = new Blob([buildFullHTML()], { type: 'text/html;charset=utf-8' });
             const a = document.createElement('a');
             a.href = URL.createObjectURL(blob);
             a.download = document.getElementById('customFilename').value || 'page.html';
@@ -722,7 +664,7 @@ ${html}
             showStatus('⬇️ تم التحميل', 'success');
         }
 
-        function showStatus(msg, type=''){
+        function showStatus(msg, type = '') {
             const el = document.getElementById('statusMessage');
             el.innerHTML = msg;
             el.className = `status ${type}`;
@@ -730,9 +672,8 @@ ${html}
 
         // بدء التشغيل
         loadDraft();
-        if (settings.token) {
-            fetchRepoFiles();
-            fetchAssets();
+        if (settings.username && settings.token) {
+            fetchRepos();
         }
     </script>
 </body>
