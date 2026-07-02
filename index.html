@@ -1,1676 +1,475 @@
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>منصة F5 التعليمية | منظومة الحسابات المدمجة والعبور السحابي</title>
-    <!-- تضمين مكتبات التصميم والأيقونات والخطوط -->
+    <title>بيئة التطوير السحابية الثورية | Ultimate Serverless IDE</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Premium Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;900&display=swap" rel="stylesheet">
-    
+    <!-- Pyodide Engine -->
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
     <style>
-        body { 
-            font-family: 'Tajawal', sans-serif; 
-            background-color: #020409; 
-            color: #f1f5f9; 
-            overflow-x: hidden; 
-        }
-        .premium-card { 
-            background: rgba(10, 16, 32, 0.75); 
-            backdrop-filter: blur(20px); 
-            border: 1px solid rgba(255, 255, 255, 0.05); 
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
-        }
-        .active-tab { 
-            background: linear-gradient(135deg, #1d4ed8, #4f46e5); 
-            color: #ffffff; 
-            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.35); 
-        }
-        #canvas-nebula { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            z-index: 0; 
-            pointer-events: none; 
-            opacity: 0.5; 
-        }
-        .app-container { 
-            position: relative; 
-            z-index: 1; 
-        }
-        .animate-smooth { 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .text-glow {
-            text-shadow: 0 0 12px rgba(59, 130, 246, 0.5);
-        }
-        /* تصميم أشرطة التمرير الأنيقة والمستقبلية */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #020409;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3b82f6;
-        }
-        .premium-input {
-            background: rgba(5, 8, 16, 0.85);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.3s ease;
-        }
-        .premium-input:focus {
-            border-color: #3b82f6;
-            box-shadow: 0 0 10px rgba(59, 130, 246, 0.2);
-            outline: none;
-        }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0b0f19; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #334155; }
+        .glass { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between">
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
 
-    <!-- قماش النيبولا الفضائي المتحرك والتفاعلي -->
-    <canvas id="canvas-nebula"></canvas>
-
-    <!-- لوحة التحكم والحسابات الجانبية الفاخرة (Auth Drawer) -->
-    <div id="auth-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-[#020409]/98 border-l border-slate-800/80 z-50 transform translate-x-full transition-transform duration-300 backdrop-blur-md shadow-2xl p-6 flex flex-col justify-between">
-        <div>
-            <div class="flex justify-between items-center pb-4 border-b border-slate-800 mb-6">
-                <h3 class="font-black text-white text-base text-glow"><i class="fas fa-user-shield ml-2 text-blue-500"></i> بوابة الأمان والحسابات</h3>
-                <button onclick="toggleAuthDrawer(false)" class="text-slate-400 hover:text-white transition-colors bg-slate-900 rounded-lg p-1 px-3 border border-slate-800 text-xs"><i class="fas fa-times"></i> إغلاق</button>
-            </div>
-
-            <!-- معلومات المستخدم الحالية -->
-            <div id="current-user-info" class="bg-blue-950/20 p-4 rounded-2xl border border-blue-500/15 mb-6 text-right">
-                <span class="text-[10px] font-bold text-blue-400 block mb-1">الحساب النشط حالياً</span>
-                <p id="drawer-user-status" class="text-xs text-slate-200 font-bold">جاري المزامنة مع السحابة...</p>
-                <div class="mt-3 flex gap-2">
-                    <button onclick="handleLogout()" id="drawer-logout-btn" class="hidden bg-red-950/30 text-red-400 hover:text-white text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all border border-red-500/20">تسجيل الخروج</button>
-                </div>
-            </div>
-
-            <!-- نموذج الدخول والتبديل السريع -->
-            <div id="drawer-auth-fields" class="space-y-4">
-                <div class="text-center mb-4">
-                    <h4 id="auth-title" class="text-xs font-black text-slate-300">تسجيل دخول المعلمين</h4>
-                    <p id="auth-subtitle" class="text-[10px] text-slate-500 mt-1">قم بتأمين مستودعك الخاص ومزامنة كويزاتك من أي جهاز</p>
-                </div>
-                
-                <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1">البريد الإلكتروني</label>
-                        <input type="email" id="auth-email" placeholder="name@school.com" class="w-full premium-input rounded-xl p-3 text-xs text-slate-200 font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-[10px] text-slate-400 mb-1">كلمة المرور</label>
-                        <input type="password" id="auth-password" placeholder="••••••••" class="w-full premium-input rounded-xl p-3 text-xs text-slate-200">
-                    </div>
-
-                    <button type="submit" id="auth-submit-btn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-3 rounded-xl text-xs shadow-lg transition-all">
-                        <span id="auth-submit-text">دخول أو إنشاء حساب جديد</span>
-                    </button>
-                </form>
-
-                <div class="text-center pt-3 border-t border-slate-900">
-                    <button onclick="toggleAuthMode()" id="auth-toggle-btn" class="text-[10px] text-blue-400 hover:text-blue-300 font-medium">ليس لديك حساب؟ سجل حساباً جديداً الآن</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="text-center text-[10px] text-slate-600 border-t border-slate-900 pt-4">
-            منظومة العبور السحابي المعزول لـ F5 v8.0
-        </div>
-    </div>
-
-    <!-- واجهة الإدارة والتحكم الكبرى -->
-    <div class="app-container flex-1 flex flex-col" id="admin-view">
-        
-        <!-- شريط الرأس والتحكم العلوي الفاخر -->
-        <header class="border-b border-slate-900 bg-slate-950/70 backdrop-blur-xl p-4 sticky top-0 z-40 shadow-lg">
-            <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
-                
-                <div class="flex items-center justify-between w-full lg:w-auto gap-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-gradient-to-tr from-blue-600 to-indigo-600 text-white rounded-2xl flex items-center justify-center font-black text-xl border border-blue-500/20 shadow-lg shadow-blue-500/10">
-                            F5
-                        </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h1 class="text-lg font-black text-white text-glow">منصة F5 التعليمية</h1>
-                                <span class="bg-blue-500/10 text-blue-400 text-[10px] font-bold px-2 py-0.5 rounded-full border border-blue-500/20">v8.0 Ultra</span>
-                            </div>
-                            <p class="text-[10px] text-slate-400 mt-0.5" id="user-display-email">جاري تأمين الاتصال المعزول...</p>
-                        </div>
-                    </div>
-
-                    <!-- أيقونة الدخول السريع وتدشين الحسابات الجانبية -->
-                    <button onclick="toggleAuthDrawer(true)" class="text-slate-200 hover:text-blue-400 text-xs flex items-center gap-2 bg-slate-900/90 px-4 py-3 rounded-xl border border-slate-800 transition-all shadow-md">
-                        <i class="fas fa-user-circle text-base"></i> <span id="header-profile-btn-text">بوابة الحسابات</span>
-                    </button>
-                </div>
-
-                <!-- شريط نسخ التوجيه الذكي ومفاتيح المساعدة لمعلمي المنصة -->
-                <div class="flex flex-wrap items-center gap-2 bg-slate-950 p-2 rounded-2xl border border-slate-900 w-full lg:w-auto">
-                    <select id="ai-model-select" class="bg-slate-900 text-xs font-bold text-slate-300 rounded-xl px-3 py-3 focus:outline-none cursor-pointer border border-slate-800">
-                        <option value="general">✨ كويز تفاعلي شامل ومتنوع</option>
-                        <option value="mcq">📝 كويز خيارات متعددة وصح وخطأ</option>
-                        <option value="written">✏️ كويز إجابات كتابية وفراغات</option>
-                    </select>
-                    
-                    <button onclick="copyDynamicPrompt()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs px-5 py-3 rounded-xl animate-smooth whitespace-nowrap shadow-md shadow-blue-500/10 flex items-center gap-1.5">
-                        <i class="fas fa-wand-magic-sparkles"></i> نسخ توجيه الـ AI المطور v8.0
-                    </button>
-                    
-                    <button onclick="openHelpGuideModal()" class="w-10 h-10 bg-slate-900 hover:bg-slate-800 text-amber-400 rounded-xl flex items-center justify-center transition-colors border border-slate-800" title="دليل المساعدة الفوري">
-                        <i class="fas fa-question-circle text-lg"></i>
-                    </button>
-                </div>
-
-            </div>
-        </header>
-
-        <!-- تبويبات التنقل السحابي السريع -->
-        <div class="max-w-7xl mx-auto w-full px-4 lg:px-6 mt-6">
-            <div class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-900 max-w-2xl text-xs font-bold text-slate-400 overflow-x-auto whitespace-nowrap">
-                <button id="tab-btn-create" onclick="switchTab('create')" class="active-tab flex-1 py-3 px-4 rounded-xl animate-smooth flex items-center justify-center gap-2">
-                    <i class="fas fa-magic"></i> <span>بناء كويز جديد</span>
-                </button>
-                <button id="tab-btn-ai-gen" onclick="switchTab('ai-gen')" class="flex-1 py-3 px-4 rounded-xl animate-smooth flex items-center justify-center gap-2 text-indigo-400 hover:text-white">
-                    <i class="fas fa-brain animate-pulse"></i> <span>صانع الكويزات بـ AI ✨</span>
-                </button>
-                <button id="tab-btn-myquizzes" onclick="switchTab('myquizzes')" class="flex-1 py-3 px-4 rounded-xl animate-smooth flex items-center justify-center gap-2">
-                    <i class="fas fa-folder-open"></i> <span>اختباراتي السحابية 📁</span>
-                </button>
-                <button id="tab-btn-gallery" onclick="switchTab('gallery')" class="flex-1 py-3 px-4 rounded-xl animate-smooth flex items-center justify-center gap-2">
-                    <i class="fas fa-globe"></i> <span>المستودع العام</span>
-                </button>
-            </div>
-        </div>
-
-        <!-- المحتويات التفاعلية للتبويبات -->
-        <main class="max-w-7xl mx-auto w-full p-4 lg:p-6 flex-1">
-            
-            <!-- التبويب الأول: بناء وتصدير كويز جديد -->
-            <div id="tab-content-create" class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                
-                <!-- لوحة الإعدادات والمزامنة الجانبية -->
-                <div class="lg:col-span-4 flex flex-col gap-5">
-                    <div class="premium-card rounded-2xl p-5 border border-slate-800 flex flex-col gap-4 shadow-xl">
-                        
-                        <!-- إعداد مستوى رؤية الكويز ومشاركته -->
-                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800/80 flex flex-col gap-2">
-                            <span class="text-xs font-bold text-blue-400"><i class="fas fa-eye-slash ml-1"></i> مستوى رؤية ومشاركة الكويز</span>
-                            <div class="flex justify-between items-center mt-1">
-                                <span class="text-xs text-slate-300" id="publish-mode-label">🔒 خاص بفصلي فقط (مباشر وسريع)</span>
-                                <label class="relative inline-flex items-center cursor-pointer">
-                                    <input type="checkbox" id="form-is-public" onchange="togglePublishFields()" class="sr-only peer">
-                                    <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:right-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600 peer-checked:after:bg-white"></div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <h3 class="text-xs font-black text-slate-400 flex items-center gap-2 border-b border-slate-800/80 pb-2"><i class="fas fa-sliders-h"></i> إعدادات الهوية وعناصر الأمان</h3>
-                        
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">عنوان الكويز أو المادة الدراسية</label>
-                            <input type="text" id="form-title" placeholder="مثال: اختبار المهارات الرقمية" class="w-full premium-input rounded-xl p-3 text-xs text-slate-200">
-                        </div>
-
-                        <!-- الحقول الأكاديمية الإضافية للنشر العام بالمستودع -->
-                        <div id="public-academic-fields" class="hidden space-y-3 bg-blue-600/5 p-4 rounded-2xl border border-blue-500/10">
-                            <span class="text-[10px] font-bold text-amber-400 block"><i class="fas fa-share-alt ml-1"></i> بيانات النشر والمشاركة بالمستودع العام</span>
-                            
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">اسم المعلم الناشر</label>
-                                <input type="text" id="form-author" placeholder="مثال: أ. محمد حكمي" class="w-full premium-input rounded-lg p-2 text-xs text-slate-200">
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">المرحلة الدراسية</label>
-                                <select id="form-stage" onchange="updateGradesDropdown('form-stage', 'form-grade')" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-2.5 border border-slate-800 focus:outline-none cursor-pointer">
-                                    <option value="primary">🎒 المرحلة الابتدائية</option>
-                                    <option value="intermediate">🏫 المرحلة المتوسطة</option>
-                                    <option value="secondary">🎓 المرحلة الثانوية</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">الصف الدراسي</label>
-                                <select id="form-grade" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-2.5 border border-slate-800 focus:outline-none cursor-pointer">
-                                    <!-- يتم تعبئتها جافا سكريبت -->
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1">الفصل الدراسي</label>
-                                <select id="form-semester" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-2.5 border border-slate-800 focus:outline-none cursor-pointer">
-                                    <option value="sem1">🍂 الفصل الدراسي الأول</option>
-                                    <option value="sem2">🌱 الفصل الدراسي الثاني</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-400 mb-1.5">الوسم المخصص للرابط (Slug)</label>
-                            <div class="relative flex items-center">
-                                <input type="text" id="form-slug" placeholder="custom-slug" class="w-full premium-input rounded-xl p-3 text-xs text-blue-400 font-bold text-center font-mono">
-                                <span class="absolute left-3 text-[10px] bg-blue-500/10 border border-blue-500/20 text-blue-400 px-2 py-0.5 rounded-lg font-mono">_gsh</span>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs text-slate-400 flex flex-col gap-3">
-                            <div class="flex justify-between items-center">
-                                <span>طلب اسم الطالب إجباري؟</span>
-                                <input type="checkbox" id="rule-require-name" checked class="w-4 h-4 rounded bg-slate-900 border-slate-800 text-blue-600 focus:ring-0">
-                            </div>
-                            <div class="flex justify-between items-center">
-                                <span>درجة النجاح المعتمدة (%)</span>
-                                <input type="number" id="rule-passing-score" value="50" class="w-14 bg-slate-900 text-center rounded-lg border border-slate-800 p-1 font-bold text-xs text-white focus:outline-none">
-                            </div>
-                        </div>
-
-                        <button onclick="publishNewQuiz()" id="btn-publish-quiz" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl text-xs shadow-lg shadow-blue-500/10 transition-all active:scale-[0.98]">
-                            <i class="fas fa-cloud-upload-alt ml-1"></i> حفظ وتثبيت الكويز سحابياً بـ F5
-                        </button>
-                    </div>
-
-                    <!-- صندوق القوالب الذكية السريعة -->
-                    <div class="premium-card rounded-2xl p-4 border border-slate-800 flex flex-col gap-3">
-                        <span class="text-xs font-bold text-slate-400"><i class="fas fa-magic text-indigo-400 ml-1"></i> قوالب جاهزة سريعة للبدء:</span>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button onclick="injectQuestionTemplate('arabic_grammar')" class="p-3 bg-slate-950/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl text-center text-[10px] font-bold text-slate-300">
-                                📝 كويز تفاعلي بسيط
-                            </button>
-                            <button onclick="injectQuestionTemplate('math_basics')" class="p-3 bg-slate-950/60 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 rounded-xl text-center text-[10px] font-bold text-slate-300">
-                                🗂 بطاقات مفردات ذكية
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- عمود إدراج ومراجعة كود الـ HTML والمحاكاة المباشرة -->
-                <div class="lg:col-span-8 flex flex-col gap-4">
-                    <div class="premium-card rounded-2xl p-5 border border-slate-800 flex flex-col flex-1 min-h-[500px] shadow-xl">
-                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 border-b border-slate-800/60 pb-3">
-                            <span class="text-xs font-bold text-slate-400"><i class="fas fa-code text-blue-500 ml-1"></i> محاكي الأكواد البرمجية الفوري للجسر السحابي لـ F5</span>
-                            <div class="flex items-center gap-2">
-                                <button onclick="launchFullScreenPreview()" class="bg-indigo-950 hover:bg-indigo-900 border border-indigo-500/30 text-xs text-indigo-300 font-bold px-4 py-2.5 rounded-xl transition-colors flex items-center gap-1.5">
-                                    <i class="fas fa-mobile-alt text-amber-500"></i> معاينة شاشة الطلاب
-                                </button>
-                            </div>
-                        </div>
-                        <textarea id="main-html-editor" placeholder="<!-- الصق كود الـ HTML الكامل الذي حصلت عليه من الذكاء الاصطناعي هنا... -->" class="w-full flex-1 bg-slate-950/95 border border-slate-900 rounded-xl p-4 font-mono text-xs text-emerald-400 focus:outline-none resize-none leading-relaxed shadow-inner dir-ltr text-left"></textarea>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- التبويب الثاني: صانع الكويزات بـ AI المباشر (تعديل كامل بالتحكم المتقدم ومخارج النشر الفوري والمزامنة التلقائية للمفاتيح) -->
-            <div id="tab-content-ai-gen" class="flex flex-col gap-6 hidden">
-                <div class="border-b border-slate-800 pb-3">
-                    <h2 class="text-lg font-black text-white flex items-center gap-2"><i class="fas fa-brain text-indigo-400 animate-pulse"></i> صانع الكويزات الفوري بـ AI المدمج</h2>
-                    <p class="text-xs text-slate-400 mt-1">قم بتهيئة إعدادات الأسئلة ثم اصنع كود اختبار تفاعلي فائق الاحترافية وسهل الفتح عبر الجوال.</p>
-                </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <!-- عمود الإعدادات والتحكم المتطور -->
-                    <div class="lg:col-span-4 premium-card p-5 rounded-2xl border border-slate-800 flex flex-col gap-4">
-                        <h3 class="text-xs font-black text-slate-300 border-b border-slate-800/60 pb-2"><i class="fas fa-sliders-h ml-1 text-indigo-400"></i> خيارات توليد الأسئلة الدقيقة</h3>
-
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1.5">موضوع الاختبار أو الدرس</label>
-                            <input type="text" id="ai-gen-topic" placeholder="مثال: قواعد النحو للصف السادس" class="w-full premium-input rounded-xl p-3 text-xs text-slate-200">
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-3">
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1.5">عدد الأسئلة الكلي</label>
-                                <select id="ai-gen-count" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-2.5 border border-slate-800 focus:outline-none">
-                                    <option value="3">3 أسئلة</option>
-                                    <option value="5" selected>5 أسئلة</option>
-                                    <option value="10">10 أسئلة</option>
-                                    <option value="15">15 سؤالاً</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="block text-[10px] text-slate-400 mb-1.5">خيارات كل سؤال</label>
-                                <select id="ai-gen-options-count" class="w-full bg-slate-900 text-xs text-slate-300 rounded-lg p-2.5 border border-slate-800 focus:outline-none">
-                                    <option value="3">3 خيارات</option>
-                                    <option value="4" selected>4 خيارات</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-950/50 p-3 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-2">
-                            <div class="flex justify-between items-center">
-                                <span class="text-[11px]">تضمين أسئلة صح وخطأ؟</span>
-                                <input type="checkbox" id="ai-gen-include-tf" checked class="w-4 h-4 rounded bg-slate-900 border-slate-800 text-blue-600 focus:ring-0">
-                            </div>
-                        </div>
-                        
-                        <div>
-                            <label class="block text-[11px] text-slate-400 mb-1.5">المادة العلمية المساعدة (اختياري)</label>
-                            <textarea id="ai-gen-content" placeholder="ألصق نصوص الدرس أو الأسئلة هنا ليعيد صياغتها تفاعلياً..." class="w-full h-24 bg-slate-950/80 border border-slate-900 rounded-xl p-3 text-xs text-slate-300 focus:outline-none resize-none"></textarea>
-                        </div>
-
-                        <button onclick="generateQuizWithGemini()" id="btn-generate-ai" class="w-full bg-gradient-to-r from-indigo-600 via-blue-600 to-purple-600 hover:from-indigo-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl text-xs shadow-lg transition-all flex items-center justify-center gap-2">
-                            <i class="fas fa-wand-magic-sparkles"></i> <span>توليد كود الاختبار بـ AI الآن</span>
-                        </button>
-                    </div>
-
-                    <!-- عمود حصاد التوليد والقرارات السريعة -->
-                    <div class="lg:col-span-8 premium-card p-5 rounded-2xl border border-slate-800 flex flex-col justify-between min-h-[450px]">
-                        <div class="mb-4">
-                            <h3 class="text-xs font-black text-slate-300 flex items-center gap-2"><i class="fas fa-terminal text-emerald-400"></i> حالة وحصاد التوليد السحابي</h3>
-                            <p class="text-[11px] text-slate-400 mt-1">عند انتهاء التوليد، سيظهر الكود وتفتح لك أزرار النشر السريع والتبرع كاختبار عام مباشرة دون نسخ لصق مجهد!</p>
-                        </div>
-                        
-                        <div id="ai-status-panel" class="flex-1 flex flex-col items-center justify-center text-center p-8 border border-dashed border-slate-800 rounded-2xl bg-slate-950/40 bg-slate-950/40">
-                            <div id="ai-status-icon" class="w-16 h-16 bg-slate-900 rounded-full flex items-center justify-center text-slate-500 mb-4 text-2xl">
-                                <i class="fas fa-brain animate-pulse text-indigo-400"></i>
-                            </div>
-                            <h4 id="ai-status-title" class="text-xs font-bold text-slate-300">مرحباً بك في صانع الكويزات الفوري بـ AI</h4>
-                            <p id="ai-status-desc" class="text-[10px] text-slate-500 mt-1 max-w-sm">املأ البيانات باليمين واضغط توليد، وسيقوم النظام ببناء الكود البرمجي التفاعلي لك بثوانٍ تلقائياً.</p>
-                            
-                            <!-- شريط تقدير المسار الفعلي -->
-                            <div id="ai-progress-bar" class="w-full max-w-xs bg-slate-900 h-1.5 rounded-full overflow-hidden mt-4 hidden">
-                                <div class="bg-indigo-500 h-full w-0" id="ai-progress-fill" style="transition: width 15s linear;"></div>
-                            </div>
-
-                            <!-- لوحة قرارات التثبيت والنسخ الفوري والمستقر بعد النجاح -->
-                            <div id="ai-action-panel" class="hidden w-full mt-6 space-y-4">
-                                <div class="bg-emerald-950/20 p-4 rounded-xl border border-emerald-500/10 text-right">
-                                    <span class="text-[10px] font-bold text-emerald-400 block mb-1">تم توليد كود الاختبار بنجاح!</span>
-                                    <p class="text-[11px] text-slate-300 leading-relaxed">اختر قرار النشر المناسب لطلابك بالأسفل ليتم حقنه، وربطه وبثه فوراً بـ F5:</p>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
-                                    <button onclick="directActionCopyCode()" class="py-3 bg-slate-900 hover:bg-slate-850 text-slate-200 font-bold rounded-xl border border-slate-800 text-xs transition-all flex items-center justify-center gap-1.5"><i class="fas fa-copy text-blue-400"></i> نسخ كود الـ HTML</button>
-                                    <button onclick="directActionPublish(false)" class="py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5"><i class="fas fa-lock"></i> تثبيت كاختبار خاص 🔒</button>
-                                    <button onclick="directActionPublish(true)" class="py-3 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5"><i class="fas fa-globe"></i> تبرع كاختبار عام 🌐</button>
-                                </div>
-                            </div>
-
-                            <!-- صمام الأمان والنسخ الاحتياطي في حال تخطي حدود القوة الضاغطة للـ API -->
-                            <div id="ai-fallback-panel" class="hidden w-full mt-6 space-y-3">
-                                <div class="bg-amber-950/30 p-4 rounded-xl border border-amber-500/20 text-right">
-                                    <span class="text-[10px] font-bold text-amber-400 block mb-1"><i class="fas fa-exclamation-triangle"></i> خوادم التوليد مشغولة حالياً (تجاوز الضغط)</span>
-                                    <p class="text-[11px] text-slate-300 leading-relaxed">بسبب الاستخدام الكثيف والضغط العالي من المعلمين، قمنا بنسخ التوجيه الاحترافي الخاص بك تلقائياً! اضغط بالأسفل للذهاب لأي ذكاء اصطناعي ولصق التوجيه للحصول على كود اختبار تفاعلي خارق:</p>
-                                </div>
-                                <div class="flex gap-2">
-                                    <a href="https://chatgpt.com/" target="_blank" class="flex-1 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs font-bold rounded-xl text-slate-300 transition-all text-center flex items-center justify-center gap-2"><i class="fas fa-external-link-alt"></i> استخدام ChatGPT</a>
-                                    <a href="https://gemini.google.com/" target="_blank" class="flex-1 py-3 bg-indigo-950 hover:bg-indigo-900 border border-indigo-500/20 text-xs font-bold rounded-xl text-indigo-300 transition-all text-center flex items-center justify-center gap-2"><i class="fas fa-external-link-alt"></i> استخدام Gemini Web</a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- التبويب الثالث: أرشيف اختباراتي السحابية الخاصة بـ F5 -->
-            <div id="tab-content-myquizzes" class="flex flex-col gap-6 hidden">
-                <div class="border-b border-slate-800 pb-3">
-                    <h2 class="text-lg font-black text-white flex items-center gap-2"><i class="fas fa-folder text-blue-500"></i> أرشيف اختباراتك السحابية الخاصة</h2>
-                    <p class="text-xs text-slate-400 mt-1">جميع كويزاتك السحابية المخزنة آمنة ومحمية تحت حسابك، وتستطيع تتبع درجات الطلاب وإنشاء نسخ معزولة لها.</p>
-                </div>
-                <!-- شبكة عرض كروت الكويزات الخاصة بالمعلم -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="my-private-quizzes-grid">
-                    <!-- يتم بناؤها ديناميكياً -->
-                </div>
-            </div>
-
-            <!-- التبويب الرابع: المستودع المشترك العام -->
-            <div id="tab-content-gallery" class="flex flex-col gap-6 hidden">
-                <!-- شريط تصفية وفلترة المستودع المشترك -->
-                <div class="premium-card p-5 rounded-2xl border border-slate-800 grid grid-cols-1 md:grid-cols-4 gap-4 items-end shadow-lg">
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1.5">المرحلة الدراسية</label>
-                        <select id="filter-stage" onchange="updateGradesDropdown('filter-stage', 'filter-grade')" class="w-full bg-slate-950 text-xs font-semibold text-slate-300 rounded-xl p-3 border border-slate-800 focus:outline-none cursor-pointer">
-                            <option value="all">🌐 كل المراحل العامة</option>
-                            <option value="primary">🎒 المرحلة الابتدائية</option>
-                            <option value="intermediate">🏫 المرحلة المتوسطة</option>
-                            <option value="secondary">🎓 المرحلة الثانوية</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1.5">الصف الدراسي</label>
-                        <select id="filter-grade" class="w-full bg-slate-950 text-xs font-semibold text-slate-300 rounded-xl p-3 border border-slate-800 focus:outline-none cursor-pointer">
-                            <option value="all">كل الصفوف</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] text-slate-400 mb-1.5">الفصل الدراسي</label>
-                        <select id="filter-semester" class="w-full bg-slate-950 text-xs font-semibold text-slate-300 rounded-xl p-3 border border-slate-800 focus:outline-none cursor-pointer">
-                            <option value="all">كل الفصول</option>
-                            <option value="sem1">الفصل الدراسي الأول</option>
-                            <option value="sem2">الفصل الدراسي الثاني</option>
-                        </select>
-                    </div>
-                    <button onclick="applyAcademicFiltersCloud()" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-xs py-3.5 rounded-xl border border-blue-500/20 shadow-md shadow-blue-500/5 transition-all"><i class="fas fa-filter ml-1"></i> تصفية المستودع المشترك</button>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="global-gallery-grid">
-                    <!-- كروت المستودع التشاركي المفتوح -->
-                </div>
-            </div>
-
-        </main>
-
-        <!-- التذييل الأنيق والبسيط مع الجملة التكريمية المتواضعة "إعداد محمد حكمي" -->
-        <footer class="bg-slate-950/80 border-t border-slate-900/60 p-6 flex flex-col items-center justify-center gap-2 backdrop-blur-md">
-            <span class="text-xs text-slate-500">منظومة العبور السحابي والمعزل الإحصائي الذكي F5 MATRIX v8.0 © 2026</span>
-            <span class="text-[11px] text-slate-400 font-bold tracking-wide">إعداد / محمد حكمي</span>
-        </footer>
-    </div>
-
-    <!-- دليل المساعدة المكون من 3 خطوات للمنصة -->
-    <div id="help-guide-modal" class="hidden fixed inset-0 z-50 bg-[#03050a]/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="premium-card rounded-3xl max-w-2xl w-full p-6 border border-slate-800 shadow-2xl text-right flex flex-col gap-5">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="text-lg font-black text-amber-400 flex items-center gap-2">
-                    <i class="fas fa-info-circle"></i> دليل المعلم البسيط لاستخدام F5
-                </h3>
-                <button onclick="closeHelpGuideModal()" class="text-xs text-slate-400 hover:text-white bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">إغلاق</button>
-            </div>
-            
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs leading-relaxed">
-                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
-                    <span class="w-8 h-8 bg-blue-600/10 text-blue-400 border border-blue-500/20 rounded-full flex items-center justify-center font-bold mb-3 text-sm">١</span>
-                    <h4 class="font-bold text-slate-200 mb-1">صمم الاختبار بـ AI</h4>
-                    <p class="text-slate-400">اكتب موضوع درسك وحدد التفاصيل واضغط "توليد كود الاختبار" وسيقوم الـ AI ببناء الاختبار تماماً.</p>
-                </div>
-                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
-                    <span class="w-8 h-8 bg-purple-600/10 text-purple-400 border border-purple-500/20 rounded-full flex items-center justify-center font-bold mb-3 text-sm">٢</span>
-                    <h4 class="font-bold text-slate-200 mb-1">تثبيت سحابي بضغطة واحدة</h4>
-                    <p class="text-slate-400">انشر كاختبار خاص أو تبرع به للعام من لوحة النتائج مباشرة دون نسخ يدوي ولصق مرهق.</p>
-                </div>
-                <div class="bg-slate-950/80 p-4 rounded-2xl border border-slate-800/80">
-                    <span class="w-8 h-8 bg-emerald-600/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center font-bold mb-3 text-sm">٣</span>
-                    <h4 class="font-bold text-slate-200 mb-1">رصد درجات الطلاب</h4>
-                    <p class="text-slate-400">تابع رصد إجابات ودرجات فصولك لحظياً مع إمكانيات التصدير السريعة لإكسل والطباعة الورقية.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- لوحة رصد درجات الطلاب ومراقبة كشف الأسماء وتوائم الفصل (gshX) -->
-    <div id="quiz-management-modal" class="hidden fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4">
-        <div class="premium-card rounded-3xl max-w-5xl w-full max-h-[90vh] overflow-y-auto border border-slate-800 shadow-2xl flex flex-col text-right">
-            
-            <div class="bg-slate-900/85 border-b border-slate-800 p-5 flex justify-between items-center sticky top-0 z-10">
-                <div>
-                    <h3 id="modal-quiz-title" class="text-lg font-black text-white">عنوان الاختبار</h3>
-                    <p id="modal-quiz-meta" class="text-xs text-slate-400 mt-1">المعرف الأساسي للكويز السحابي: ...</p>
-                </div>
-                <button onclick="closeQuizManagementModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white font-bold text-xs px-4 py-2 rounded-xl border border-slate-800 transition-colors">إغلاق لوحة الرصد</button>
-            </div>
-
-            <div class="p-6 flex flex-col gap-6">
-                
-                <!-- لوحة التوائم والمعزل الإحصائي -->
-                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <h4 class="text-xs font-bold text-blue-400 mb-2"><i class="fas fa-clone ml-1"></i> محرك التوائم والمعزل الإحصائي الذكي لـ F5 (gshX)</h4>
-                        <p class="text-[11px] text-slate-400 leading-relaxed">هل ترغب في عزل فصولك وتوليد روابط مستقلة؟ أدخل اسم الفصل الجديد لإنشاء قناة رصد منفصلة ومنع تداخل السجلات.</p>
-                        <button id="modal-clone-btn" class="mt-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-bold text-[11px] px-4 py-2.5 rounded-lg transition-all shadow-md">
-                            <i class="fas fa-copy ml-1"></i> إنشاء معزل إحصائي فوري ومستقل
-                        </button>
-                    </div>
-                    <div class="border-t md:border-t-0 md:border-r border-slate-800 md:pr-4 flex flex-col justify-center">
-                        <h4 class="text-xs font-bold text-slate-300 mb-1.5"><i class="fas fa-link ml-1"></i> رمز المجموعة النشطة المراقبة بالأسفل</h4>
-                        <div class="flex gap-2">
-                            <input type="text" id="modal-analytics-slug-input" class="bg-slate-900 border border-slate-800 text-xs font-bold text-center text-blue-400 rounded-xl px-3 py-2 w-full focus:outline-none font-mono">
-                            <button onclick="fetchQuizAnalyticsFromModal()" class="bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 px-4 rounded-xl border border-slate-700 transition-colors whitespace-nowrap"><i class="fas fa-sync-alt"></i> تحديث السجلات</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- كروت الإحصائيات الفورية لرصد أداء الفصول -->
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800/60 text-right">
-                        <span class="text-[10px] font-medium text-slate-400 block">إجمالي استجابات الطلاب</span>
-                        <span id="stat-total-submissions" class="text-2xl font-black text-blue-500 block mt-1">0</span>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800/60 text-right">
-                        <span class="text-[10px] font-medium text-slate-400 block">متوسط درجات الفصل</span>
-                        <span id="stat-avg-score" class="text-2xl font-black text-indigo-400 block mt-1">0%</span>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800/60 text-right">
-                        <span class="text-[10px] font-medium text-slate-400 block">أعلى درجة مرصودة</span>
-                        <span id="stat-max-score" class="text-2xl font-black text-emerald-400 block mt-1">0%</span>
-                    </div>
-                    <div class="bg-slate-900 p-4 rounded-xl border border-slate-800/60 text-right">
-                        <span class="text-[10px] font-medium text-slate-400 block">معدل الاجتياز الكلي</span>
-                        <span id="stat-pass-rate" class="text-2xl font-black text-purple-400 block mt-1">0%</span>
-                    </div>
-                </div>
-
-                <!-- جدول كشف درجات الطلاب + مصدّر التقارير والمطبوعات -->
-                <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-lg">
-                    <div class="p-4 bg-slate-900 text-xs font-black text-slate-300 border-b border-slate-800 flex flex-col sm:flex-row justify-between items-center gap-3">
-                        <span><i class="fas fa-list-ol ml-1 text-slate-400"></i> كشف رصد درجات الطلاب وتواريخ إرسال الحلول</span>
-                        <div class="flex gap-2">
-                            <button onclick="exportAnalyticsToCSV()" class="bg-slate-950 hover:bg-slate-800 text-[10px] text-emerald-400 border border-slate-800 px-3 py-1.5 rounded-lg transition-all"><i class="fas fa-file-excel ml-1"></i> تصدير كملف Excel (CSV)</button>
-                            <button onclick="printAnalyticsReport()" class="bg-slate-950 hover:bg-slate-800 text-[10px] text-blue-400 border border-slate-800 px-3 py-1.5 rounded-lg transition-all"><i class="fas fa-print ml-1"></i> طباعة كشف الرصد ورقياً</button>
-                        </div>
-                    </div>
-                    <table class="w-full text-right text-xs" id="analytics-printable-table">
-                        <thead class="bg-slate-950 text-slate-400 text-[10px] font-bold border-b border-slate-800">
-                            <tr>
-                                <th class="p-3.5">اسم الطالب الثلاثي</th>
-                                <th class="p-3.5 text-center">الدرجة المكتسبة</th>
-                                <th class="p-3.5 text-center">الدرجة الكلية</th>
-                                <th class="p-3.5 text-center">حالة الاجتياز</th>
-                                <th class="p-3.5 text-left">تاريخ وبث الإرسال</th>
-                            </tr>
-                        </thead>
-                        <tbody id="analytics-table-body" class="divide-y divide-slate-900 text-slate-300">
-                            <!-- رصد درجات الطلاب السحابية المحدثة -->
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- إطار محاكاة ومعاينة الكود للمعلم في شاشة هاتف ذكي -->
-    <div id="cinema-preview-modal" class="hidden fixed inset-0 z-50 bg-slate-950 flex flex-col">
-        <div class="bg-slate-900 border-b border-slate-800 px-6 py-4 flex justify-between items-center">
-            <span class="text-xs font-medium text-slate-400"><i class="fas fa-desktop text-blue-500 ml-1"></i> محاكاة شاشة الهواتف الذكية للتحقق من توافقية الاختبار</span>
-            <button onclick="closeCinemaPreview()" class="bg-red-600/10 hover:bg-red-600 text-red-400 hover:text-white font-bold text-xs px-4 py-2 rounded-lg transition-colors">إغلاق وتعديل الأكواد</button>
-        </div>
-        
-        <div class="flex-1 bg-slate-950 flex items-center justify-center p-4">
-            <div class="relative mx-auto border-gray-800 dark:border-gray-800 bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[310px] shadow-2xl">
-                <div class="rounded-[2rem] overflow-hidden w-full h-full bg-white">
-                    <iframe id="cinema-preview-frame" class="w-full h-full border-none" src="about:blank"></iframe>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- شاشة ترحيب ودخول الطلاب لبدء حل الاختبار (Student Gateway Portal) -->
-    <div id="student-portal-wrapper" class="hidden fixed inset-0 z-50 bg-[#020409] flex items-center justify-center p-4">
-        <div class="premium-card rounded-3xl p-6 lg:p-8 max-w-md w-full text-center border border-slate-800/80 shadow-2xl">
-            <div class="w-16 h-16 bg-blue-600/10 text-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 border border-blue-500/20">
-                <i class="fas fa-user-graduate text-3xl"></i>
-            </div>
-            <h2 id="portal-quiz-title" class="text-xl font-bold text-slate-100 text-glow">بوابة حل الاختبار التفاعلية المعزولة F5</h2>
-            <p id="portal-quiz-info" class="text-xs text-slate-400 mt-2 mb-6">يرجى كتابة الاسم الثلاثي للبدء في حل الاختبار المخصص للفصل</p>
-            <div class="flex flex-col gap-3">
-                <input type="text" id="student-name-input" placeholder="اكتب اسمك الثلاثي هنا..." class="w-full premium-input rounded-xl p-3.5 text-xs font-bold text-slate-200 text-center focus:outline-none">
-                <button onclick="startStudentQuizExam()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 font-bold py-3.5 rounded-xl text-xs shadow-lg transition-all active:scale-[0.98]">تجاوز الأمان والبدء بالحل</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- بيئة تشغيل الكود الفعلي للطالب بعد كتابة اسمه -->
-    <div id="student-exam-runtime" class="hidden fixed inset-0 z-40 bg-white">
-        <iframe id="student-runtime-frame" class="w-full h-full border-none bg-white" src="about:blank"></iframe>
-    </div>
-
-    <!-- إشعار مخصص وأنيق بالخلفية لسهولة ومظهر المنصات الفخمة -->
-    <div id="custom-alert" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 transform -translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
-        <div class="bg-blue-650 text-white px-6 py-3.5 rounded-2xl shadow-2xl flex items-center gap-2 text-sm font-bold border border-blue-400/20">
-            <i class="fa-solid fa-bell text-lg"></i>
-            <span id="alert-message">جاري المعالجة...</span>
-        </div>
-    </div>
-
-    <!-- تضمين وربط خدمات الـ Firebase السحابية بالكامل باستخدام ESM -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        const firebaseConfig = {
-            apiKey: "AIzaSyDZ2ZZBqlVIMlw98j__zi15TnuojMu6h94",
-            authDomain: "f5-platform.firebaseapp.com",
-            projectId: "f5-platform",
-            storageBucket: "f5-platform.firebasestorage.app",
-            messagingSenderId: "632146361439",
-            appId: "1:632146361439:web:326231577f6d7e3d1cefea",
-            measurementId: "G-0KGY2FY4CK"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        const appId = "f5-platform-app";
-
-        window.F5_FIREBASE = {
-            db,
-            auth,
-            appId,
-            doc,
-            setDoc,
-            getDoc,
-            collection,
-            getDocs,
-            addDoc,
-            signInWithEmailAndPassword,
-            createUserWithEmailAndPassword,
-            signOut,
-            onAuthStateChanged,
-            signInAnonymously,
-            firebaseApiKey: firebaseConfig.apiKey // إسناد المفتاح برمجياً لاستخدامه كـ API مدمج لـ Gemini تلقائياً
-        };
-
-        const initAuthSystem = async () => {
-            const F5 = window.F5_FIREBASE;
-            
-            F5.onAuthStateChanged(F5.auth, async (user) => {
-                if (user) {
-                    if (!user.isAnonymous) {
-                        document.getElementById('user-display-email').innerText = `المعلم النشط: ${user.email} 🔒`;
-                        document.getElementById('drawer-user-status').innerText = `🔒 معلم مسجل: ${user.email}`;
-                        document.getElementById('drawer-logout-btn').classList.remove('hidden');
-                        document.getElementById('drawer-auth-fields').classList.add('hidden');
-                        document.getElementById('header-profile-btn-text').innerText = "حساب المعلم";
-                    } else {
-                        document.getElementById('user-display-email').innerText = `معلم ضيف نشط (عبور سحابي آمن) 🔓`;
-                        document.getElementById('drawer-user-status').innerText = `🔓 معلم ضيف (رصد فوري وسريع)`;
-                        document.getElementById('drawer-logout-btn').classList.add('hidden');
-                        document.getElementById('drawer-auth-fields').classList.remove('hidden');
-                        document.getElementById('header-profile-btn-text').innerText = "دخول المعلمين";
-                    }
-                    initNebulaBackground();
-                    checkUrlForSharedCode();
-                } else {
-                    try {
-                        await F5.signInAnonymously(F5.auth);
-                    } catch (e) {
-                        console.error("Auto auth failed:", e);
-                    }
+    <!-- نظام التفكيك والتشغيل التلقائي للروابط المولدّة -->
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('view')) {
+            try {
+                const compressedData = urlParams.get('view');
+                const decodedRaw = decodeURIComponent(escape(atob(compressedData)));
+                const project = JSON.parse(decodedRaw);
+                document.open();
+                document.write(project.code);
+                document.close();
+            } catch (e) {
+                try {
+                    const compressedCode = urlParams.get('view');
+                    const decodedCode = decodeURIComponent(escape(atob(compressedCode)));
+                    document.open();
+                    document.write(decodedCode);
+                    document.close();
+                } catch(err) {
+                    alert("خطأ في فك تشفير الرابط الصادر.");
                 }
-            });
-        };
-
-        initAuthSystem();
+            }
+        }
     </script>
 
-    <!-- الأكواد البرمجية للعمليات وحركات النيبولا والصوتيات -->
-    <script>
-        const academicTaxonomy = {
-            primary: ["الصف الأول الابتدائي", "الصف الثاني الابتدائي", "الصف الثالث الابتدائي", "الصف الرابع الابتدائي", "الصف الخامس الابتدائي", "الصف السادس الابتدائي"],
-            intermediate: ["الصف الأول متوسط", "الصف الثاني متوسط", "الصف الثالث متوسط"],
-            secondary: ["الصف الأول ثانوي", "الصف الثاني ثانوي", "الصف الثالث ثانوي"]
-        };
-        const semesterLabels = { sem1: "الفصل الدراسي الأول", sem2: "الفصل الدراسي الثاني" };
-        const stageLabels = { primary: "ابتدائي 🎒", intermediate: "متوسط 🏫", secondary: "ثانوي 🎓" };
-
-        let authMode = "login";
-
-        function playSfx(type) {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                if (!ctx) return;
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                if (type === 'click') {
-                    osc.frequency.setValueAtTime(600, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.04, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.08);
-                } else if (type === 'success') {
-                    osc.frequency.setValueAtTime(880, ctx.currentTime);
-                    gain.gain.setValueAtTime(0.05, ctx.currentTime);
-                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
-                }
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                osc.stop(ctx.currentTime + 0.2);
-            } catch (e) {}
-        }
-
-        function toggleAuthDrawer(open) {
-            const drawer = document.getElementById('auth-drawer');
-            if (open) {
-                drawer.classList.remove('translate-x-full');
-            } else {
-                drawer.classList.add('translate-x-full');
-            }
-            playSfx('click');
-        }
-
-        function toggleAuthMode() {
-            authMode = (authMode === "login") ? "register" : "login";
-            document.getElementById('auth-title').innerText = (authMode === "login") ? "تسجيل دخول المعلمين" : "إنشاء حساب معلم جديد";
-            document.getElementById('auth-subtitle').innerText = (authMode === "login") ? "قم بتأمين مستودعك الخاص ومزامنة كويزاتك من أي جهاز" : "أنشئ حسابك الخاص الآن لحفظ كويزاتك ورصد درجات فصولك بشكل آمن";
-            document.getElementById('auth-toggle-btn').innerText = (authMode === "login") ? "ليس لديك حساب؟ إنشاء حساب جديد الآن" : "لديك حساب بالفعل؟ سجل دخولك الآن";
-            document.getElementById('auth-submit-text').innerText = (authMode === "login") ? "تأكيد الأمان والدخول للمنصة" : "تسجيل الحساب الجديد وبناء المستودع";
-        }
-
-        async function handleAuthSubmit(e) {
-            e.preventDefault();
-            const email = document.getElementById('auth-email').value.trim();
-            const pass = document.getElementById('auth-password').value;
-            const btn = document.getElementById('auth-submit-btn');
-            
-            if(!email || !pass) { alert("يرجى ملء جميع الحقول المطلوبة!"); return; }
-
-            btn.disabled = true;
-            btn.innerText = "جاري الاتصال بالسيرفر سحابياً...";
-
-            const F5 = window.F5_FIREBASE;
-
-            try {
-                if (authMode === "register") {
-                    await F5.createUserWithEmailAndPassword(F5.auth, email, pass);
-                    showAlert("مرحباً بك! تم بناء حسابك الأكاديمي بنجاح.");
-                } else {
-                    await F5.signInWithEmailAndPassword(F5.auth, email, pass);
-                    showAlert("تم تسجيل الدخول بنجاح! جاري تحميل اختباراتك الخاصة.");
-                }
-                toggleAuthDrawer(false);
-            } catch (err) {
-                console.error(err);
-                alert("فشل إجراء المصادقة: " + err.message);
-            } finally {
-                btn.disabled = false;
-                document.getElementById('auth-submit-text').innerText = (authMode === "login") ? "تأكيد الأمان والدخول للمنصة" : "إنشاء الحساب وتأسيس المستودع";
-            }
-        }
-
-        async function handleLogout() {
-            const F5 = window.F5_FIREBASE;
-            try {
-                await F5.signOut(F5.auth);
-                showAlert("تم تسجيل الخروج بنجاح.");
-                toggleAuthDrawer(false);
-                setTimeout(() => window.location.reload(), 1000);
-            } catch (e) {
-                alert("فشل تسجيل الخروج: " + e.message);
-            }
-        }
-
-        function showAlert(message) {
-            const alertBox = document.getElementById('custom-alert');
-            document.getElementById('alert-message').innerText = message;
-            alertBox.classList.remove('opacity-0', '-translate-y-20', 'pointer-events-none');
-            alertBox.classList.add('opacity-100', 'translate-y-0');
-            setTimeout(() => {
-                alertBox.classList.remove('opacity-100', 'translate-y-0');
-                alertBox.classList.add('opacity-0', '-translate-y-20', 'pointer-events-none');
-            }, 3000);
-        }
-
-        // ==================== [إدارة ونشر وتخزين الكويزات سحابياً] ====================
-        function togglePublishFields() {
-            const isPublic = document.getElementById('form-is-public').checked;
-            const fieldsContainer = document.getElementById('public-academic-fields');
-            const modeLabel = document.getElementById('publish-mode-label');
-
-            if (isPublic) {
-                fieldsContainer.classList.remove('hidden');
-                modeLabel.innerText = "🌐 نشر عام في المستودع المشترك لـ F5";
-            } else {
-                fieldsContainer.classList.add('hidden');
-                modeLabel.innerText = "🔒 خاص بفصلي فقط (مباشر وسريع)";
-            }
-            playSfx('click');
-        }
-
-        function updateGradesDropdown(stageSelectId, gradeSelectId) {
-            const stage = document.getElementById(stageSelectId).value;
-            const gradeSelect = document.getElementById(gradeSelectId);
-            gradeSelect.innerHTML = stage === 'all' ? '<option value="all">كل الصفوف</option>' : '';
-            
-            if(academicTaxonomy[stage]) {
-                academicTaxonomy[stage].forEach((g, idx) => {
-                    const opt = document.createElement('option');
-                    opt.value = `grade-${idx+1}`;
-                    opt.innerText = g;
-                    gradeSelect.appendChild(opt);
-                });
-            }
-        }
-        updateGradesDropdown('form-stage', 'form-grade');
-
-        function switchTab(tabName) {
-            document.getElementById('tab-content-create').classList.add('hidden');
-            document.getElementById('tab-content-ai-gen').classList.add('hidden');
-            document.getElementById('tab-content-gallery').classList.add('hidden');
-            document.getElementById('tab-content-myquizzes').classList.add('hidden');
-            document.getElementById('tab-btn-create').classList.remove('active-tab');
-            document.getElementById('tab-btn-ai-gen').classList.remove('active-tab');
-            document.getElementById('tab-btn-gallery').classList.remove('active-tab');
-            document.getElementById('tab-btn-myquizzes').classList.remove('active-tab');
-
-            if(tabName === 'create') {
-                document.getElementById('tab-content-create').classList.remove('hidden');
-                document.getElementById('tab-btn-create').classList.add('active-tab');
-            } else if(tabName === 'ai-gen') {
-                document.getElementById('tab-content-ai-gen').classList.remove('hidden');
-                document.getElementById('tab-btn-ai-gen').classList.add('active-tab');
-            } else if(tabName === 'myquizzes') {
-                document.getElementById('tab-content-myquizzes').classList.remove('hidden');
-                document.getElementById('tab-btn-myquizzes').classList.add('active-tab');
-                loadMyPrivateQuizzes();
-            } else if(tabName === 'gallery') {
-                document.getElementById('tab-content-gallery').classList.remove('hidden');
-                document.getElementById('tab-btn-gallery').classList.add('active-tab');
-                loadGlobalGalleryCloud();
-            }
-            playSfx('click');
-        }
-
-        function copyDynamicPrompt() {
-            const model = document.getElementById('ai-model-select').value;
-            const isPublic = document.getElementById('form-is-public').checked;
-            const passScore = document.getElementById('rule-passing-score').value || "50";
-
-            let detailsText = "الاختبار مصمم ليكون خاصاً بالفصل ومحمي تحت الهوية الرقمية الموحدة لـ F5.";
-            if (isPublic) {
-                const stage = document.getElementById('form-stage').value;
-                const gradeIdx = document.getElementById('form-grade').selectedIndex;
-                const gradeText = document.getElementById('form-grade').options[gradeIdx]?.text || "";
-                const semText = semesterLabels[document.getElementById('form-semester').value];
-                detailsText = `نشر عام بالمستودع للمرحلة: ${stageLabels[stage]}، ${gradeText}، ${semText}.`;
-            }
-
-            const fullPrompt = `أريد بناء كود صفحة HTML/JS كويز تفاعلي فائق الجمال بأسلوب تكنولوجي مريح وخيارات ألوان راقية لتبسيط العرض، ومناسب تماماً للفتح والمزامنة عبر الهواتف الذكية والأجهزة المحمولة.
-🎯 طبيعة وسياق العمل: ${detailsText}
-
-🚨 بروتوكول العبور السحابي لـ F5 MATRIX v8.0:
-1. الالتزام الكامل بنسبة نجاح مقدرة بـ (${passScore}%).
-2. عند الانتهاء كلياً من حل الأسئلة وظهور التقييم النهائي للطالب، يجب فوراً إرسال وبث النتيجة عبر الجسر البرمجي التالي لتوثيقها في حساب المعلم:
-   if (window.parent && window.parent.EndexSubmitBridge) {
-       window.parent.EndexSubmitBridge({ score: الدرجة_المستحقة, total: الدرجة_الكلية });
-   }
-
-الرجاء صياغة الأسئلة وبناء الكود البرمجي التفاعلي لها بلمسة ساحرة متكاملة:
-[الصق أسئلتك أو مادتك العلمية الخام هنا لكي أقوم بتحويلها لكويز أسطوري لـ F5]`;
-
-            navigator.clipboard.writeText(fullPrompt);
-            playSfx('success');
-            showAlert("تم نسخ وهيكلة التوجيه المطور لـ F5 بنجاح!");
-        }
-
-        // ==================== [صانع الكويزات بـ AI التلقائي 100% والمربوط بـ Firebase API key] ====================
-        let lastGeneratedCode = ""; 
-
-        async function generateQuizWithGemini() {
-            const topic = document.getElementById('ai-gen-topic').value.trim();
-            const count = document.getElementById('ai-gen-count').value;
-            const optionsCount = document.getElementById('ai-gen-options-count').value;
-            const includeTF = document.getElementById('ai-gen-include-tf').checked;
-            const content = document.getElementById('ai-gen-content').value.trim();
-            const btn = document.getElementById('btn-generate-ai');
-            
-            if(!topic) { alert("يرجى كتابة موضوع الكويز المطلوب أولاً!"); return; }
-
-            const F5 = window.F5_FIREBASE;
-            const apiKey = F5.firebaseApiKey; 
-
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري استدعاء الـ AI...`;
-            
-            const statusIcon = document.getElementById('ai-status-icon');
-            const statusTitle = document.getElementById('ai-status-title');
-            const statusDesc = document.getElementById('ai-status-desc');
-            const progressBar = document.getElementById('ai-progress-bar');
-            const progressFill = document.getElementById('ai-progress-fill');
-            const actionPanel = document.getElementById('ai-action-panel');
-            const fallbackPanel = document.getElementById('ai-fallback-panel');
-
-            actionPanel.classList.add('hidden');
-            fallbackPanel.classList.add('hidden');
-            statusIcon.innerHTML = `<i class="fas fa-magic text-2xl text-indigo-400 animate-bounce"></i>`;
-            statusTitle.innerText = "جاري هندسة وصياغة الاختبار سحابياً...";
-            statusDesc.innerText = `نقوم بإنشاء كويز من ${count} أسئلة بخيارات من ${optionsCount} بنود وتجنب التداخل...`;
-            progressBar.classList.remove('hidden');
-            progressFill.style.width = "0%";
-            setTimeout(() => { progressFill.style.width = "90%"; }, 200);
-
-            // صياغة التوجيه المتطور وتخزينه كـ Fallback للنسخ الفوري في حالة توقف الـ API بسبب ضغط الـ 900 قروب
-            const detailsText = `إنشاء كويز تفاعلي رائع من ${count} أسئلة بخيارات من ${optionsCount} بنود. المادة المساعدة: ${content}`;
-            const backupPrompt = `أريد بناء كود صفحة HTML/JS كويز تفاعلي فائق الجمال بأسلوب تكنولوجي ومناسب تماماً للهواتف الذكية.
-🎯 طبيعة وسياق العمل: ${detailsText}
-🚨 بروتوكول العبور السحابي لـ F5 MATRIX v8.0:
-عند الانتهاء كلياً من حل الأسئلة، يجب فوراً إرسال وبث النتيجة عبر الجسر البرمجي التالي لتوثيقها:
-if (window.parent && window.parent.EndexSubmitBridge) {
-    window.parent.EndexSubmitBridge({ score: الدرجة_المستحقة, total: الدرجة_الكلية });
-}`;
-
-            const systemPrompt = "أنت مهندس برمجيات ومستشار أكاديمي خبير في الفحص والتقييم الذكي المدمج بجسر المزامنة لـ F5.";
-            const userPrompt = `قم ببناء اختبار تفاعلي (HTML) كامل ومتجاوب بملف واحد للدرس: (${topic}).
-المعلومات والمادة الخام: ${content}.
-شروط التوليد الحتمية:
-1. إجمالي عدد الأسئلة: ${count} أسئلة تفاعلية.
-2. لكل سؤال اختيار من متعدد: ${optionsCount} خيارات بالضبط.
-3. هل يتضمن أسئلة صح وخطأ؟ ${includeTF ? 'نعم، أدرج سؤالاً أو سؤالين من نمط صح وخطأ تفاعلي بـ True/False' : 'لا، اجعل كل الأسئلة بنظام خيارات متعددة'}.
-4. المظهر البصري: نمط مستقبلي غامق فاخر جداً ومريح للعين واللمس على أجهزة الجوال.
-5. جسر العبور السحابي لـ F5 (مهم وحاسم):
-عند إنهاء الاختبار وعرض النتيجة الإجمالية للطالب، يجب فوراً استدعاء وبث البيانات برمجياً:
-if (window.parent && window.parent.EndexSubmitBridge) {
-    window.parent.EndexSubmitBridge({ score: score, total: total });
-}
-ملاحظة: لا تضع أي نصوص أو كود تفسيري خارج كود الـ HTML المكتمل والجاهز للتشغيل فوراً.`;
-
-            const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: userPrompt }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] }
-            };
-
-            let success = false;
-            let resultText = "";
-            let delay = 1000;
-
-            for (let i = 1; i <= 5; i++) {
-                try {
-                    const res = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
-                        success = true;
-                        break;
-                    }
-                } catch (e) {
-                    console.warn(`Retry ${i} failed...`, e);
-                }
-                await new Promise(r => setTimeout(r, delay));
-                delay *= 2;
-            }
-
-            if (success && resultText) {
-                let cleaned = resultText.trim();
-                if (cleaned.startsWith("```html")) cleaned = cleaned.substring(7);
-                if (cleaned.endsWith("```")) cleaned = cleaned.substring(0, cleaned.length - 3);
-                cleaned = cleaned.trim();
-
-                lastGeneratedCode = cleaned;
-                document.getElementById('main-html-editor').value = cleaned;
-
-                progressFill.style.width = "100%";
-                statusIcon.innerHTML = `<i class="fas fa-check-circle text-2xl text-emerald-400"></i>`;
-                statusTitle.innerText = "اكتمل التوليد السحابي لـ F5 بنجاح!";
-                statusDesc.innerText = "كود الاختبار جاهز بالكامل بالمصنع، ويمكنك توجيهه وتصديره فورا بضغطة زر أدناه.";
-                
-                actionPanel.classList.remove('hidden');
-                showAlert("تم توليد الكويز بنجاح وازدهار!");
-            } else {
-                // تفعيل صمام الأمان وتجنب خروج المعلم غاضباً في حالة توقف الـ API
-                // نقوم بنسخ التوجيه الاحترافي المخصص لجهاز المعلم فوراً ومساعدته في دقيقة واحدة
-                const tempTex = document.createElement('textarea');
-                tempTex.value = backupPrompt;
-                document.body.appendChild(tempTex);
-                tempTex.select();
-                document.execCommand('copy');
-                document.body.removeChild(tempTex);
-
-                statusIcon.innerHTML = `<i class="fas fa-network-wired text-2xl text-amber-500 animate-pulse"></i>`;
-                statusTitle.innerText = "جاري تفعيل صمام الأمان السحابي لـ F5";
-                statusDesc.innerText = "نظراً للضغط الهائل على السيرفر في المجموعات التعليمية، تم نسخ توجيه الـ AI المخصص للاختبار الخاص بك في حافظة جهازك تلقائياً! الرجاء النقر فوق أحد الخيارات المتاحة أدناه ولصقه مباشرة للحصول على كود الاختبار التفاعلي ثم وضعه في مصنع المنصة لتثبيته خلال ثوانٍ.";
-                
-                fallbackPanel.classList.remove('hidden');
-                showAlert("تم تفعيل صمام الأمان ونسخ التوجيه لجهازك!");
-            }
-
-            btn.disabled = false;
-            btn.innerHTML = `<i class="fas fa-wand-magic-sparkles"></i> <span>توليد كود الاختبار بـ AI الآن</span>`;
-        }
-
-        // ==================== [مزايا القرارات والإعداد الفوري للـ AI المولد] ====================
-        function directActionCopyCode() {
-            if(!lastGeneratedCode) return;
-            const tempTex = document.createElement('textarea');
-            tempTex.value = lastGeneratedCode;
-            document.body.appendChild(tempTex);
-            tempTex.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempTex);
-            showAlert("تم نسخ كود الـ HTML بنجاح في حافظتك!");
-        }
-
-        async function directActionPublish(isPublic) {
-            if(!lastGeneratedCode) return;
-            
-            const title = prompt("أدخل عنوان كويز الـ AI الجديد:", "اختبار المهارات الرقمية المطور");
-            if (!title) return;
-
-            const baseSlug = prompt("أدخل الوسم المخصص للرابط (Slug) بالإنجليزية فقط (بدون مسافات):", "quiz-ai-" + Math.floor(Math.random() * 9000 + 1000));
-            if (!baseSlug) return;
-
-            document.getElementById('form-title').value = title;
-            document.getElementById('form-slug').value = baseSlug;
-            document.getElementById('form-is-public').checked = isPublic;
-            
-            togglePublishFields();
-            await publishNewQuiz();
-        }
-
-        // ==================== [حفظ وتخزين الاختبارات سحابياً بالكامل] ====================
-        async function publishNewQuiz() {
-            const baseSlug = document.getElementById('form-slug').value.trim();
-            const code = document.getElementById('main-html-editor').value;
-            const title = document.getElementById('form-title').value.trim() || "اختبار تفاعلي ذكي";
-            const isPublic = document.getElementById('form-is-public').checked;
-            const passScore = parseInt(document.getElementById('rule-passing-score').value) || 50;
-            const reqName = document.getElementById('rule-require-name').checked;
-
-            if(!baseSlug || !code.trim()) { 
-                alert("يرجى كتابة الوسم المخصص للرابط ولصق كود الـ HTML البرمجي أولاً!"); 
-                return; 
-            }
-
-            const btn = document.getElementById('btn-publish-quiz');
-            btn.disabled = true;
-            btn.innerHTML = `<i class="fas fa-spinner animate-spin"></i> جاري تأمين وتثبيت الاختبار سحابياً...`;
-
-            const fullSlug = baseSlug + "_gsh";
-            const studentUrl = `https://FAFO.github.io/F5/?id=${fullSlug}`;
-            
-            const F5 = window.F5_FIREBASE;
-            const userId = F5.auth.currentUser?.uid || "guest-teacher";
-
-            const quizObject = {
-                code: code, 
-                title: title, 
-                baseSlug: baseSlug, 
-                fullSlug: fullSlug, 
-                isPublic: isPublic,
-                passingScore: passScore, 
-                requireName: reqName, 
-                userOwner: userId,
-                createdAt: new Date().toISOString(),
-                author: isPublic ? (document.getElementById('form-author').value.trim() || "معلم منصة F5") : "خاص",
-                stage: isPublic ? document.getElementById('form-stage').value : "private",
-                grade: isPublic ? document.getElementById('form-grade').value : "private",
-                semester: isPublic ? document.getElementById('form-semester').value : "private"
-            };
-
-            try {
-                const publicRef = F5.doc(F5.db, 'artifacts', F5.appId, 'public', 'data', 'quizzes', fullSlug);
-                await F5.setDoc(publicRef, quizObject);
-
-                const privateRef = F5.doc(F5.db, 'artifacts', F5.appId, 'users', userId, 'quizzes', fullSlug);
-                await F5.setDoc(privateRef, quizObject);
-
-                navigator.clipboard.writeText(studentUrl);
-                playSfx('success');
-                alert(`🚀 تم حفظ وتدشين الاختبار سحابياً بـ F5 بنجاح!\nتم نسخ رابط حل الطلاب في حافظة جهازك تلقائياً:\n\n${studentUrl}`);
-                switchTab('myquizzes');
-            } catch (err) {
-                console.error(err);
-                alert("خطأ أثناء النشر السحابي: " + err.message);
-            } finally {
-                btn.disabled = false;
-                btn.innerHTML = `<i class="fas fa-cloud-upload-alt"></i> حفظ وتثبيت الكويز سحابياً بـ F5`;
-            }
-        }
-
-        // جلب كويزات المعلم الخاصة به من Firestore
-        async function loadMyPrivateQuizzes() {
-            const grid = document.getElementById('my-private-quizzes-grid');
-            grid.innerHTML = `<div class="text-center py-6 col-span-full text-slate-500 text-xs"><i class="fas fa-spinner animate-spin text-xl mb-2 block"></i> جاري مزامنة اختباراتك السحابية الخاصة...</div>`;
-
-            const F5 = window.F5_FIREBASE;
-            const userId = F5.auth.currentUser?.uid || "guest-teacher";
-
-            try {
-                const qRef = F5.collection(F5.db, 'artifacts', F5.appId, 'users', userId, 'quizzes');
-                const snap = await F5.getDocs(qRef);
-
-                grid.innerHTML = "";
-                if (snap.empty) {
-                    grid.innerHTML = `<div class="text-center py-12 col-span-full text-slate-500 text-xs bg-slate-950/80 rounded-xl border border-slate-900"><i class="fas fa-folder-open text-xl mb-2 block text-blue-500/40"></i> لم تقم بإنشاء أي كويزات خاصة تحت هويتك السحابية الحالية حتى الآن!</div>`;
-                    return;
-                }
-
-                snap.forEach(doc => {
-                    const q = doc.data();
-                    grid.appendChild(createGalleryCardElement(q, true));
-                });
-            } catch (err) {
-                console.error(err);
-                grid.innerHTML = `<div class="text-center py-6 col-span-full text-red-500 text-xs">فشل مزامنة السجلات: ${err.message}</div>`;
-            }
-        }
-
-        // جلب المستودع التشاركي العام لقراءة الكويزات المشتركة
-        async function loadGlobalGalleryCloud() {
-            const grid = document.getElementById('global-gallery-grid');
-            grid.innerHTML = `<div class="text-center py-6 col-span-full text-slate-500 text-xs"><i class="fas fa-spinner animate-spin text-xl mb-2 block"></i> جاري تصفح المستودع العام المفتوح...</div>`;
-
-            const F5 = window.F5_FIREBASE;
-
-            try {
-                const qRef = F5.collection(F5.db, 'artifacts', F5.appId, 'public', 'data', 'quizzes');
-                const snap = await F5.getDocs(qRef);
-
-                grid.innerHTML = "";
-                let publicQuizzes = [];
-                snap.forEach(doc => {
-                    const data = doc.data();
-                    if (data.isPublic) publicQuizzes.push(data);
-                });
-
-                if (publicQuizzes.length === 0) {
-                    grid.innerHTML = `<div class="text-center py-12 col-span-full text-slate-500 text-xs bg-slate-950 rounded-xl border border-slate-900"><i class="fas fa-globe text-xl mb-2 block"></i> المستودع المشترك العام فارغ في الوقت الراهن.</div>`;
-                    return;
-                }
-
-                publicQuizzes.forEach(q => {
-                    grid.appendChild(createGalleryCardElement(q, false));
-                });
-            } catch (err) {
-                console.error(err);
-                grid.innerHTML = `<div class="text-center py-6 col-span-full text-red-500 text-xs">فشل جلب المستودع: ${err.message}</div>`;
-            }
-        }
-
-        // فلترة المستودع العام
-        async function applyAcademicFiltersCloud() {
-            const stage = document.getElementById('filter-stage').value;
-            const grade = document.getElementById('filter-grade').value;
-            const sem = document.getElementById('filter-semester').value;
-            const grid = document.getElementById('global-gallery-grid');
-
-            grid.innerHTML = `<div class="text-center py-6 col-span-full text-slate-500 text-xs"><i class="fas fa-spinner animate-spin text-xl mb-2 block"></i> جاري البحث والفلترة السحابية...</div>`;
-
-            const F5 = window.F5_FIREBASE;
-
-            try {
-                const qRef = F5.collection(F5.db, 'artifacts', F5.appId, 'public', 'data', 'quizzes');
-                const snap = await F5.getDocs(qRef);
-
-                grid.innerHTML = "";
-                let filtered = [];
-                snap.forEach(doc => {
-                    const q = doc.data();
-                    if (!q.isPublic) return;
-                    if (stage !== 'all' && q.stage !== stage) return;
-                    if (grade !== 'all' && q.grade !== grade) return;
-                    if (sem !== 'all' && q.semester !== sem) return;
-                    filtered.push(q);
-                });
-
-                if (filtered.length === 0) {
-                    grid.innerHTML = `<div class="text-center py-12 col-span-full text-slate-500 text-xs bg-slate-950 rounded-xl border border-slate-900">لم نعثر على نتائج مطابقة لفلتر البحث.</div>`;
-                    return;
-                }
-
-                filtered.forEach(q => {
-                    grid.appendChild(createGalleryCardElement(q, false));
-                });
-            } catch (err) {
-                console.error(err);
-            }
-        }
-
-        function createGalleryCardElement(q, isMyOwnFolder) {
-            const div = document.createElement('div');
-            div.className = "premium-card border border-slate-800/80 p-5 rounded-2xl flex flex-col justify-between hover:border-slate-700 transition-all text-right shadow-lg relative overflow-hidden";
-            
-            if (isMyOwnFolder && q.isPublic) {
-                div.innerHTML += `<span class="absolute top-0 left-0 bg-blue-600 text-[8px] font-bold text-white px-2 py-0.5 rounded-br">منشور بالعام</span>`;
-            }
-
-            const stageText = stageLabels[q.stage] || "🔒 كويز خاص";
-            const gradeText = academicTaxonomy[q.stage]?.[parseInt(q.grade.split('-')[1])-1] || "طالب فصل";
-            const semText = semesterLabels[q.semester] || "رابط مباشر";
-
-            div.innerHTML += `
+    <!-- الهيدر الاحترافي -->
+    <header class="bg-slate-900/90 border-b border-slate-800/80 sticky top-0 z-50 backdrop-filter backdrop-blur-md px-6 py-4 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/20">
+                    <i class="fa-solid fa-crown text-2xl text-white animate-bounce"></i>
+                </div>
                 <div>
-                    <div class="flex items-center justify-between mb-2">
-                        <span class="text-[10px] text-blue-400 font-bold"><i class="fas fa-user-circle ml-1"></i> ${isMyOwnFolder ? 'ملفي الخاص' : q.author}</span>
-                        <span class="text-[9px] text-slate-500 font-mono font-bold">${q.baseSlug}_gsh</span>
-                    </div>
-                    <h4 class="text-xs font-bold text-slate-200 mb-3">${q.title}</h4>
-                    <div class="flex flex-wrap gap-1 mb-2">
-                        <span class="text-[9px] bg-slate-950 border border-slate-900 px-2 py-0.5 rounded text-slate-400">${stageText}</span>
-                        <span class="text-[9px] bg-slate-950 border border-slate-900 px-2 py-0.5 rounded text-slate-400">${gradeText}</span>
-                        <span class="text-[9px] bg-slate-950 border border-slate-900 px-2 py-0.5 rounded text-slate-400">${semText}</span>
-                    </div>
+                    <h1 class="text-2xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">المنصة السحابية الخارقة</h1>
+                    <p class="text-xs text-slate-400 mt-0.5">استضافة HTML وبايثون فورية مع نظام إدارة ملفات متكامل ومفضلة ذكية</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-800/60 flex gap-2">
-                    <button onclick="openQuizManagementModal('${q.baseSlug}', '${q.title}', '${q.author || 'خاص'}')" class="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold text-[10px] py-2.5 rounded-xl transition-all text-center">
-                        إدارة ورصد الدرجات 📊
-                    </button>
-                    <button onclick="navigator.clipboard.writeText('https://FAFO.github.io/F5/?id=${q.fullSlug}'); alert('تم نسخ رابط الطلاب بنجاح لـ F5!');" class="px-3 bg-slate-900 hover:bg-slate-850 border border-slate-800 rounded-xl text-slate-400 transition-all" title="نسخ رابط حل الطلاب"><i class="fas fa-link text-[10px]"></i></button>
-                </div>
-            `;
-            return div;
-        }
-
-        // ==================== [إدارة وتتبع استجابات الطلاب ورقابة المعازل] ====================
-        let currentModalActiveBaseSlug = "";
-        let currentModalActiveSubmissions = []; 
-
-        function openQuizManagementModal(baseSlug, title, author) {
-            currentModalActiveBaseSlug = baseSlug;
-            document.getElementById('modal-quiz-title').innerText = title;
-            document.getElementById('modal-quiz-meta').innerText = `المعرف: ${baseSlug}_gsh | الناشر: ${author}`;
+            </div>
             
-            const defaultTargetSlug = baseSlug + "_gsh";
-            document.getElementById('modal-analytics-slug-input').value = defaultTargetSlug;
+            <!-- أزرار تبديل لوحات التحكم -->
+            <nav class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
+                <button onclick="switchTab('html-tab')" id="btn-html-tab" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center gap-2 shadow-md">
+                    <i class="fa-solid fa-code-branch text-base"></i> مطور الويب
+                </button>
+                <button onclick="switchTab('polyglot-tab')" id="btn-polyglot-tab" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-terminal text-base"></i> مختبر اللغات
+                </button>
+                <button onclick="switchTab('archive-tab')" id="btn-archive-tab" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-star text-base text-amber-400"></i> المستودع والمفضلة
+                </button>
+            </nav>
+        </div>
+    </header>
 
-            document.getElementById('modal-clone-btn').onclick = function() {
-                cloneAndSegregateEngine(baseSlug);
-            };
+    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 flex-grow flex flex-col">
+        
+        <!-- التبويب الأول: مطور الويب مع المعاينة والحقن السريع -->
+        <section id="html-tab" class="tab-content flex-grow flex flex-col gap-6">
+            <div class="glass p-4 rounded-2xl flex flex-wrap gap-4 items-center justify-between">
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-xs font-bold text-slate-400"><i class="fa-solid fa-bolt text-amber-400"></i> حقن فوري:</span>
+                    <button onclick="injectTemplate('quiz')" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition text-indigo-400">
+                        <i class="fa-solid fa-graduation-cap"></i> اختبار تفاعلي
+                    </button>
+                    <button onclick="injectTemplate('tailwind')" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition text-cyan-400">
+                        <i class="fa-brands fa-css3-alt"></i> قالب Tailwind
+                    </button>
+                </div>
+                <div class="w-full sm:w-auto">
+                    <input type="text" id="project-title" placeholder="عنوان المشروع (مثال: اختبار أبا بدر للغة الإنجليزية)" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm w-full sm:w-72 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-200">
+                </div>
+            </div>
 
-            fetchQuizAnalyticsFromModal();
-            document.getElementById('quiz-management-modal').classList.remove('hidden');
-            playSfx('click');
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow min-h-[450px]">
+                <!-- محرر الكود -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
+                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex justify-between items-center">
+                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-keyboard text-indigo-400"></i> شفرة المصدر الـ HTML</span>
+                        <span class="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-md font-mono">مزامنة حية</span>
+                    </div>
+                    <textarea id="html-code" oninput="updateLivePreview()" class="w-full flex-grow p-4 bg-slate-950 text-emerald-400 font-mono text-sm focus:outline-none resize-none text-left" placeholder="<!-- اكتب كود الويب هنا -->" style="direction: ltr;"></textarea>
+                </div>
+                <!-- المعاينة الحية -->
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
+                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-circle-play text-purple-400"></i> المعاينة المباشرة للموقع المولد</span>
+                    </div>
+                    <div class="w-full flex-grow bg-white relative">
+                        <iframe id="live-preview-frame" class="w-full h-full border-none bg-white"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لوحة التحكم بالتوليد -->
+            <div class="glass p-5 rounded-2xl flex flex-col gap-4">
+                <div class="flex justify-between items-center flex-wrap gap-4">
+                    <div>
+                        <h4 class="text-sm font-bold text-slate-200">هندسة وبث الرابط التفاعلي</h4>
+                        <p class="text-xs text-slate-400 mt-1">سيتم تشفير الكود بالكامل داخل الرابط وحفظه تلقائياً في مستودع المفضلة لديك.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="downloadHTMLFile()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-3 rounded-xl border border-slate-700 transition flex items-center gap-2 text-xs">
+                            <i class="fa-solid fa-file-arrow-down text-base text-emerald-400"></i> تحميل كملف HTML
+                        </button>
+                        <button onclick="deployRevolutionaryHTML()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-6 py-3 rounded-xl shadow-xl shadow-indigo-500/20 transition flex items-center gap-2 text-xs">
+                            <i class="fa-solid fa-globe text-base animate-spin"></i> توليد رابط التشغيل وحفظه
+                        </button>
+                    </div>
+                </div>
+
+                <div id="result-box" class="hidden mt-2 bg-slate-950 p-4 rounded-xl border border-indigo-500/30">
+                    <label class="block text-xs font-bold text-emerald-400 mb-2"><i class="fa-solid fa-circle-check"></i> تم التشفير والمزامنة بنجاح تام!</label>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <input type="text" id="generated-url" readonly class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 font-mono select-all focus:outline-none" style="direction: ltr;">
+                        <div class="flex gap-2 justify-end">
+                            <button onclick="copyGeneratedLink()" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-4 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5 whitespace-nowrap">
+                                <i class="fa-solid fa-copy text-indigo-400"></i> نسخ
+                            </button>
+                            <a id="open-link" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5 text-white shadow-md">
+                                <i class="fa-solid fa-external-link"></i> زيارة الصفحة
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- التبويب الثاني: مختبر اللغات المفتوح -->
+        <section id="polyglot-tab" class="tab-content hidden flex-grow flex flex-col gap-6">
+            <div class="glass p-4 rounded-2xl flex items-center gap-3">
+                <span class="text-xs font-bold text-slate-300"><i class="fa-solid fa-microchip text-indigo-400"></i> محرك التشغيل:</span>
+                <select id="execution-lang" onchange="switchLanguageMode()" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-1.5 text-xs font-bold text-slate-200 focus:outline-none">
+                    <option value="python">Python 3 (WebAssembly Engine)</option>
+                    <option value="javascript">JavaScript (Local V8 Console)</option>
+                </select>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow min-h-[400px]">
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
+                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex justify-between items-center">
+                        <span id="lang-editor-title" class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-brands fa-python text-yellow-400"></i> محرر كود Python 3</span>
+                    </div>
+                    <textarea id="polyglot-code" class="w-full flex-grow p-4 bg-slate-950 text-yellow-200 font-mono text-sm focus:outline-none resize-none text-left" style="direction: ltr;"></textarea>
+                    <div class="p-4 bg-slate-900 border-t border-slate-800">
+                        <button onclick="runPolyglotCode()" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black px-6 py-2.5 rounded-xl transition flex items-center gap-2 text-xs">
+                            <i class="fa-solid fa-play"></i> تشغيل الكود البرمجي الآن
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
+                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
+                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-terminal text-slate-400"></i> شاشة المخرجات والمنطق (Console)</span>
+                        <button onclick="clearTerminal()" class="text-[11px] text-slate-400 hover:text-red-400 transition flex items-center gap-1"><i class="fa-solid fa-trash"></i> مسح</button>
+                    </div>
+                    <div id="polyglot-output" class="w-full flex-grow p-5 bg-black text-slate-200 font-mono text-sm overflow-y-auto whitespace-pre-wrap text-left" style="direction: ltr;">بانتظار الأوامر البرمجية...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- التبويب الثالث: المستودع الذكي والمفضلة وإدارة الروابط المحفوظة -->
+        <section id="archive-tab" class="tab-content hidden flex-grow">
+            <div class="glass p-6 rounded-2xl shadow-xl flex flex-col gap-4">
+                <!-- شريط البحث الفوري والفلترة والتحكم بالأرشيف -->
+                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center border-b border-slate-800 pb-4 gap-4">
+                    <div class="flex items-center gap-3 flex-grow max-w-xl">
+                        <div class="relative w-full">
+                            <i class="fa-solid fa-magnifying-glass absolute right-3 top-3.5 text-slate-500 text-xs"></i>
+                            <input type="text" id="archive-search" oninput="renderArchive()" placeholder="ابحث في مشاريعك وروابطك المحفوظة..." class="bg-slate-900 border border-slate-800 rounded-xl pr-9 pl-4 py-2.5 text-xs w-full focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-200">
+                        </div>
+                        <button onclick="toggleFavFilter()" id="btn-fav-filter" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-300">
+                            <i id="fav-filter-icon" class="fa-regular fa-star text-amber-400"></i> المفضلة فقط
+                        </button>
+                    </div>
+                    <button onclick="clearAllArchive()" class="text-xs bg-red-950/30 text-red-400 hover:bg-red-900/40 border border-red-900/40 font-bold px-4 py-2.5 rounded-xl transition self-end md:self-auto">
+                        <i class="fa-solid fa-trash-can"></i> إخلاء الأرشيف بالكامل
+                    </button>
+                </div>
+                
+                <!-- شبكة المشاريع والروابط المحفوظة -->
+                <div id="archive-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[480px] overflow-y-auto p-1">
+                    <!-- تعبأ ديناميكياً -->
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- نظام الإشعارات العائم (Toast Notifications) -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
+
+    <footer class="bg-slate-950 text-center py-4 text-xs text-slate-600 border-t border-slate-900/60 font-mono">
+        &lt; Advanced File-Manager & Smart-Favouriting Engine Connected // Serverless &gt;
+    </footer>
+
+    <!-- كود المنظومة البرمجية المدمجة -->
+    <script>
+        let pyodideInstance = null;
+        let onlyShowFavorites = false; // حالة فلتر المفضلة
+
+        const templates = {
+            quiz: `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>نموذج اختبار تفاعلي</title>
+    <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body class="bg-slate-50 p-6">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-xl mt-10 border border-slate-100">
+        <h2 class="text-lg font-black text-indigo-600 mb-1">📝 اختبار اللغة الإنجليزية القصير</h2>
+        <p class="text-xs text-slate-400 mb-4">أجب على السؤال التالي لتظهر نتيجتك فوراً:</p>
+        <div class="p-4 bg-slate-50 rounded-xl mb-4 border border-slate-200">
+            <p class="text-sm font-bold text-slate-800 text-left" style="direction:ltr;">Choose the correct sentence:</p>
+            <div class="mt-3 space-y-2">
+                <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200 text-xs cursor-pointer"><input type="radio" name="eng_q" value="w"> I plays tennis every day.</label>
+                <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200 text-xs cursor-pointer"><input type="radio" name="eng_q" value="c"> I play tennis every day.</label>
+            </div>
+        </div>
+        <button onclick="score()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs">تصحيح الإجابة</button>
+        <p id="res" class="mt-3 text-center text-xs font-bold hidden"></p>
+    </div>
+    <script>
+        function score(){
+            const ans = document.querySelector('input[name="eng_q"]:checked');
+            const r = document.getElementById('res'); r.classList.remove('hidden');
+            if(ans && ans.value === 'c') { r.className="mt-3 text-center text-xs font-bold text-green-600 p-2 bg-green-50 rounded-lg"; r.innerText="🎉 إجابة صحيحة وممتازة!"; }
+            else { r.className="mt-3 text-center text-xs font-bold text-red-600 p-2 bg-red-50 rounded-lg"; r.innerText="❌ إجابة خاطئة، حاول مرة أخرى."; }
+        }
+    <\/script>
+</body>
+</html>`,
+            tailwind: `<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"><\/script>
+</head>
+<body class="bg-gradient-to-tr from-slate-900 to-indigo-950 text-white min-h-screen flex items-center justify-center">
+    <h1 class="text-2xl font-black tracking-wider">قالب فارغ جاهز للإبداع 🚀</h1>
+</body>
+</html>`,
+            pythonDefault: `def welcome(name):\n    return f"مرحباً {name}! محرك البايثون يعمل بكفاءة مطلقة."\n\nprint(welcome("أبا بدر وأبو عبدالعزيز"))`,
+            jsDefault: `console.log("مرحباً بك في لوحة تحكم جافاسكربت الافتراضية!");\nconsole.log("النتيجة المنطقية للحساب: " + (50 * 2));`
+        };
+
+        window.onload = function() {
+            document.getElementById('html-code').value = templates.quiz;
+            document.getElementById('polyglot-code').value = templates.pythonDefault;
+            updateLivePreview();
+        };
+
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `glass px-4 py-3 rounded-xl text-xs font-bold shadow-2xl flex items-center gap-2 border transition-all duration-300 transform translate-y-2 opacity-0`;
+            if(type === 'success') toast.classList.add('border-emerald-500/30', 'text-emerald-400');
+            else if(type === 'error') toast.classList.add('border-red-500/30', 'text-red-400');
+            else toast.classList.add('border-indigo-500/30', 'text-indigo-400');
+
+            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info'} text-sm"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => { toast.remove(); }, 300);
+            }, 3500);
         }
 
-        function closeQuizManagementModal() { 
-            document.getElementById('quiz-management-modal').classList.add('hidden'); 
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2";
+            });
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center gap-2 shadow-md";
+            if(tabId === 'archive-tab') renderArchive();
         }
 
-        async function fetchQuizAnalyticsFromModal() {
-            const targetSlug = document.getElementById('modal-analytics-slug-input').value.trim();
-            const tbody = document.getElementById('analytics-table-body');
-            tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-slate-500"><i class="fas fa-spinner animate-spin"></i> جاري تحديث وجلب درجات فصولك...</td></tr>`;
+        function updateLivePreview() {
+            const code = document.getElementById('html-code').value;
+            document.getElementById('live-preview-frame').srcdoc = code;
+        }
 
-            const F5 = window.F5_FIREBASE;
+        function injectTemplate(type) {
+            document.getElementById('html-code').value = templates[type];
+            updateLivePreview();
+            showToast(`تم حقن القالب المختار بنجاح`, "success");
+        }
+
+        function switchLanguageMode() {
+            const lang = document.getElementById('execution-lang').value;
+            const titleEl = document.getElementById('lang-editor-title');
+            const codeArea = document.getElementById('polyglot-code');
+            if(lang === 'python') {
+                titleEl.innerHTML = `<i class="fa-brands fa-python text-yellow-400"></i> محرر كود Python 3`;
+                codeArea.value = templates.pythonDefault;
+            } else {
+                titleEl.innerHTML = `<i class="fa-brands fa-js text-yellow-300"></i> محرر كود JavaScript`;
+                codeArea.value = templates.jsDefault;
+            }
+            clearTerminal();
+        }
+
+        function clearTerminal() {
+            document.getElementById('polyglot-output').innerText = "تم تنظيف الشاشة...";
+        }
+
+        // تحميل الكود كملف HTML مباشر على الجهاز
+        function downloadHTMLFile() {
+            const code = document.getElementById('html-code').value.trim();
+            let title = document.getElementById('project-title').value.trim() || "index";
+            if (!code) { showToast("المحرر فارغ، لا يوجد شيء لتحميله!", "error"); return; }
+            
+            const blob = new Blob([code], { type: "text/html;charset=utf-8" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `${title}.html`;
+            link.click();
+            showToast("تم تحميل ملف الـ HTML بنجاح على جهازك!", "success");
+        }
+
+        // إنتاج الرابط السحابي المحمول للمشروع
+        function deployRevolutionaryHTML() {
+            const code = document.getElementById('html-code').value.trim();
+            let title = document.getElementById('project-title').value.trim() || "مشروع وب فوري";
+            if (!code) { showToast("برجاء كتابة شفرة كود أولاً!", "error"); return; }
 
             try {
-                const subRef = F5.collection(F5.db, 'artifacts', F5.appId, 'public', 'data', 'submissions');
-                const snap = await F5.getDocs(subRef);
-
-                let filteredResponses = [];
-                snap.forEach(doc => {
-                    const r = doc.data();
-                    if (r.quizSlug === targetSlug) filteredResponses.push(r);
-                });
-
-                filteredResponses.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-                currentModalActiveSubmissions = filteredResponses;
-
-                const passMin = 50; 
-
-                tbody.innerHTML = "";
-                if (filteredResponses.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-500">لا توجد أي نتائج أو درجات مسجلة لطلابك تحت هذا المعزل (${targetSlug}) حالياً.</td></tr>`;
-                    resetAnalyticsStats();
-                    return;
-                }
-
-                let total = filteredResponses.length; 
-                let sumPct = 0; 
-                let maxPct = 0; 
-                let passCount = 0;
-
-                filteredResponses.forEach(r => {
-                    const score = parseFloat(r.score) || 0;
-                    const max = parseFloat(r.total) || 10;
-                    const pct = Math.round((score / max) * 100);
-                    sumPct += pct;
-                    if (pct > maxPct) maxPct = pct;
-                    if (pct >= passMin) passCount++;
-
-                    const isPassed = pct >= passMin;
-                    const badge = isPassed 
-                        ? `<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-lg text-[10px] font-bold">🟢 مجتاز (${pct}%)</span>` 
-                        : `<span class="bg-red-500/10 text-red-400 border border-red-500/20 px-2.5 py-1 rounded-lg text-[10px] font-bold">🔴 دون المتوقع (${pct}%)</span>`;
-
-                    const dateFormatted = new Date(r.timestamp).toLocaleDateString('ar-SA', {month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'});
-
-                    const tr = document.createElement('tr');
-                    tr.className = "hover:bg-slate-900/40 border-b border-slate-900/80 transition-all";
-                    tr.innerHTML = `
-                        <td class="p-3.5 font-bold text-slate-200">${r.studentName}</td>
-                        <td class="p-3.5 text-center text-blue-400 font-bold font-mono">${score}</td>
-                        <td class="p-3.5 text-center text-slate-500 font-mono">${max}</td>
-                        <td class="p-3.5 text-center">${badge}</td>
-                        <td class="p-3.5 text-left text-slate-500 font-mono text-[11px]">${dateFormatted}</td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-
-                document.getElementById('stat-total-submissions').innerText = total;
-                document.getElementById('stat-avg-score').innerText = Math.round(sumPct / total) + "%";
-                document.getElementById('stat-max-score').innerText = maxPct + "%";
-                document.getElementById('stat-pass-rate').innerText = Math.round((passCount / total) * 100) + "%";
+                const projectObject = { title: title, code: code, timestamp: Date.now() };
+                const compressed = btoa(unescape(encodeURIComponent(JSON.stringify(projectObject))));
+                const shareUrl = `${window.location.origin}${window.location.pathname}?view=${compressed}`;
+                
+                document.getElementById('generated-url').value = shareUrl;
+                document.getElementById('open-link').href = shareUrl;
+                document.getElementById('result-box').classList.remove('hidden');
+                
+                // حفظ البيانات في الأرشيف المحلي مع تعيين المفضلة لـ false افتراضياً
+                let archive = JSON.parse(localStorage.getItem('ultimate_ide_archive')) || [];
+                archive.unshift({ id: Date.now(), title: title, url: shareUrl, favorite: false });
+                localStorage.setItem('ultimate_ide_archive', JSON.stringify(archive));
+                
+                showToast("تم توليد الرابط وحفظ المشروع في الأرشيف!", "success");
             } catch (err) {
-                console.error(err);
-                tbody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">فشل تحديث النتائج: ${err.message}</td></tr>`;
+                showToast("فشل في تشفير وحزم الكود.", "error");
             }
         }
 
-        function resetAnalyticsStats() {
-            document.getElementById('stat-total-submissions').innerText = "0";
-            document.getElementById('stat-avg-score').innerText = "0%";
-            document.getElementById('stat-max-score').innerText = "0%";
-            document.getElementById('stat-pass-rate').innerText = "0%";
+        function copyGeneratedLink() {
+            const input = document.getElementById('generated-url');
+            input.select(); document.execCommand('copy');
+            showToast("تم نسخ رابط الويب بنجاح!", "success");
         }
 
-        function cloneAndSegregateEngine(baseSlug) {
-            const className = prompt("تأسيس حقل معزول ومستقل لـ F5 (gshX):\nاكتب اسم أو رمز الفصل الجديد لإنشاء رابط مستقل بالكامل لطلابهم:");
-            if (!className || !className.trim()) return;
-
-            const cleanClassToken = className.replace(/\s+/g, '-').trim();
-            const clonedSlug = `${baseSlug}_gsh-${cleanClassToken}`;
-            const clonedUrl = `https://FAFO.github.io/F5/?id=${clonedSlug}`;
-
-            navigator.clipboard.writeText(clonedUrl);
-            alert(`✨ تم توليد الرابط المستقل للفصل بنجاح بـ F5!\nالرابط التالي جاهز للإرسال للطلاب:\n\n${clonedUrl}`);
+        // تشغيل البايثون والجافاسكربت
+        async function runPolyglotCode() {
+            const lang = document.getElementById('execution-lang').value;
+            const code = document.getElementById('polyglot-code').value;
+            const outputTerminal = document.getElementById('polyglot-output');
+            outputTerminal.innerText = "جاري تهيئة البيئة والتشغيل...";
             
-            document.getElementById('modal-analytics-slug-input').value = clonedSlug;
-            fetchQuizAnalyticsFromModal();
+            if(lang === 'python') {
+                try {
+                    if (!pyodideInstance) pyodideInstance = await loadPyodide();
+                    let stdoutBuffer = "";
+                    pyodideInstance.setStdout({ batched: (text) => { stdoutBuffer += text + "\n"; } });
+                    await pyodideInstance.runPythonAsync(code);
+                    outputTerminal.innerText = stdoutBuffer || "تم التنفيذ (بدون مخرجات print).";
+                } catch (err) { outputTerminal.innerText = `[خطأ بايثون]:\n${err}`; }
+            } else {
+                let oldLog = console.log; let logs = [];
+                console.log = function (msg) { logs.push(msg); oldLog.apply(console, arguments); };
+                try { eval(code); outputTerminal.innerText = logs.join('\n') || "تم التنفيذ بنجاح."; } 
+                catch(err) { outputTerminal.innerText = `[خطأ جافاسكربت]:\n${err}`; }
+                console.log = oldLog;
+            }
         }
 
-        // ==================== [تصدير كشوف الدرجات والطباعة] ====================
-        function exportAnalyticsToCSV() {
-            if (currentModalActiveSubmissions.length === 0) { alert("لا توجد سجلات لتصديرها!"); return; }
-            let csvContent = "\ufeff"; 
-            csvContent += "اسم الطالب الثلاثي,الدرجة المكتسبة,الدرجة الكلية,النسبة المئوية,تاريخ الإرسال\r\n";
-            
-            currentModalActiveSubmissions.forEach(r => {
-                const pct = Math.round((r.score / r.total) * 100) + "%";
-                const row = `"${r.studentName}",${r.score},${r.total},"${pct}","${new Date(r.timestamp).toLocaleString('ar-SA')}"`;
-                csvContent += row + "\r\n";
+        // تبديل فلترة المفضلة
+        function toggleFavFilter() {
+            onlyShowFavorites = !onlyShowFavorites;
+            const btn = document.getElementById('btn-fav-filter');
+            const icon = document.getElementById('fav-filter-icon');
+            if(onlyShowFavorites) {
+                btn.className = "bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-1.5 whitespace-nowrap";
+                icon.className = "fa-solid fa-star text-white";
+            } else {
+                btn.className = "bg-slate-900 hover:bg-slate-800 border border-slate-800 font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-300";
+                icon.className = "fa-regular fa-star text-amber-400";
+            }
+            renderArchive();
+        }
+
+        // عكس حالة المفضلة لمشروع معين
+        function toggleFavorite(id) {
+            let archive = JSON.parse(localStorage.getItem('ultimate_ide_archive')) || [];
+            archive = archive.map(item => {
+                if(item.id === id) item.favorite = !item.favorite;
+                return item;
             });
-
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement("a");
-            const url = URL.createObjectURL(blob);
-            link.setAttribute("href", url);
-            link.setAttribute("download", `كشف_درجات_F5_كويز_${currentModalActiveBaseSlug}.csv`);
-            link.style.visibility = 'hidden';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            localStorage.setItem('ultimate_ide_archive', JSON.stringify(archive));
+            renderArchive();
+            showToast("تم تحديث حالة المفضلة للمشروع", "success");
         }
 
-        function printAnalyticsReport() {
-            const printContent = document.getElementById('analytics-printable-table').outerHTML;
-            const title = document.getElementById('modal-quiz-title').innerText;
-            const meta = document.getElementById('modal-quiz-meta').innerText;
+        // رندرة وبناء واجهة الأرشيف مع المفضلة والبحث
+        function renderArchive() {
+            const container = document.getElementById('archive-list');
+            const searchText = document.getElementById('archive-search').value.toLowerCase().trim();
+            let archive = JSON.parse(localStorage.getItem('ultimate_ide_archive')) || [];
             
-            const win = window.open("", "_blank");
-            win.document.write(`
-                <html>
-                <head>
-                    <title>كشف رصد درجات الطلاب | منصة F5</title>
-                    <style>
-                        body { font-family: 'Tajawal', sans-serif; direction: rtl; padding: 40px; color: #333; }
-                        h1 { text-align: center; color: #1d4ed8; font-size: 20px; }
-                        p { text-align: center; color: #666; font-size: 12px; margin-bottom: 30px; }
-                        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 12px; }
-                        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
-                        th { background-color: #f3f4f6; color: #1d4ed8; }
-                        .text-center { text-align: center; }
-                        .footer { text-align: center; font-size: 10px; color: #999; margin-top: 50px; border-t: 1px solid #eee; padding-top: 15px; }
-                    </style>
-                </head>
-                <body>
-                    <h1>كشف رصد الدرجات الأكاديمي لـ منصة F5 التعليمية</h1>
-                    <h2 style="text-align:center;">${title}</h2>
-                    <p>${meta}</p>
-                    ${printContent}
-                    <div class="footer">إعداد / محمد حكمي | منظومة العبور السحابي F5</div>
-                </body>
-                </html>
-            `);
-            win.document.close();
-            win.print();
-        }
-
-        // ==================== [بوابة حل الطلاب المعزولة] ====================
-        let activeStudentQuizId = ""; 
-        let activeQuizConfigData = null;
-
-        async function checkUrlForSharedCode() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const id = urlParams.get('id');
+            // تطبيق الفلترة بالبحث والمفضلة
+            if(onlyShowFavorites) archive = archive.filter(item => item.favorite);
+            if(searchText) archive = archive.filter(item => item.title.toLowerCase().includes(searchText));
             
-            if (id) {
-                activeStudentQuizId = id;
-                const baseKey = id.split('-')[0]; 
-
-                const F5 = window.F5_FIREBASE;
-
-                try {
-                    const qRef = F5.doc(F5.db, 'artifacts', F5.appId, 'public', 'data', 'quizzes', baseKey);
-                    const docSnap = await F5.getDoc(qRef);
-
-                    if (docSnap.exists()) {
-                        activeQuizConfigData = docSnap.data();
-                        document.getElementById('portal-quiz-title').innerText = activeQuizConfigData.title;
-                        document.getElementById('portal-quiz-info').innerText = `بوابة الحل الآمن لـ F5 | درجة النجاح المطلوبة: ${activeQuizConfigData.passingScore}%`;
-                        document.getElementById('student-portal-wrapper').classList.remove('hidden');
-                        document.getElementById('admin-view').classList.add('hidden');
-                    } else {
-                        alert("عذراً، هذا الكويز غير متاح أو تم نقله من المستودعات السحابية.");
-                    }
-                } catch (err) {
-                    console.error(err);
-                    alert("تعذر جلب بيانات الاختبار: " + err.message);
-                }
+            if(archive.length === 0) {
+                container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-sm"><i class="fa-solid fa-box-open text-3xl mb-2 block"></i> لم يتم العثور على أي مشاريع تطابق خيارات الفلترة الحالية.</div>`;
+                return;
             }
-        }
-
-        async function startStudentQuizExam() {
-            const name = document.getElementById('student-name-input').value.trim();
-            if(!name && activeQuizConfigData.requireName) { 
-                alert("يجب كتابة اسمك الثلاثي لتوثيق ورقة إجابتك في سجلات المعلم!"); 
-                return; 
-            }
-
-            window.EndexSubmitBridge = async function(result) {
-                const F5 = window.F5_FIREBASE;
-                try {
-                    const payload = {
-                        studentName: name || "طالب مجتهد",
-                        quizSlug: activeStudentQuizId,
-                        score: parseFloat(result.score) || 0,
-                        total: parseFloat(result.total) || 10,
-                        timestamp: new Date().toISOString()
-                    };
-
-                    const subRef = F5.collection(F5.db, 'artifacts', F5.appId, 'public', 'data', 'submissions');
-                    await F5.addDoc(subRef, payload);
-
-                    alert("🎉 تم بث وتسجيل إجابتك بنجاح في سجلات معلم المادة سحابياً!");
-                } catch (err) {
-                    console.error(err);
-                    alert("فشل إرسال النتيجة: " + err.message);
-                }
-            };
-
-            document.getElementById('student-portal-wrapper').classList.add('hidden');
-            document.getElementById('student-exam-runtime').classList.remove('hidden');
-
-            const iframe = document.getElementById('student-runtime-frame');
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(activeQuizConfigData.code);
-            iframeDoc.close();
-        }
-
-        function launchFullScreenPreview() {
-            const code = document.getElementById('main-html-editor').value;
-            if(!code.trim()) { alert("يرجى كتابة أو توليد الكود البرمجي أولاً!"); return; }
-            window.EndexSubmitBridge = function(data) { alert(`🎯 فحص سلامة الجسر البرمجي ناجح!\nالنتيجة الافتراضية المستلمة للعبور: ${data.score} من أصل ${data.total}`); };
-            document.getElementById('cinema-preview-frame').srcdoc = code;
-            document.getElementById('cinema-preview-modal').classList.remove('hidden');
-        }
-        function closeCinemaPreview() { 
-            document.getElementById('cinema-preview-modal').classList.add('hidden'); 
-        }
-
-        // ==================== [بنك وقوالب الأسئلة الجاهزة المبتكرة] ====================
-        function injectQuestionTemplate(type) {
-            playSfx('click');
-            const editor = document.getElementById('main-html-editor');
-            let templateCode = '';
-
-            if (type === 'arabic_grammar') {
-                templateCode = `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>كويز اللغة العربية - القواعد والنحو</title>
-  <script src="https://cdn.tailwindcss.com"><\/script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
-  <style>body { font-family: 'Tajawal', sans-serif; background: #0b0f19; color: #f1f5f9; }</style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-4">
-  <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center shadow-2xl">
-    <div class="w-16 h-16 bg-blue-600/10 text-blue-500 rounded-full flex items-center justify-center text-2xl mx-auto mb-4 border border-blue-500/20">
-      <i class="fas fa-book-open"></i>
-    </div>
-    <h2 class="text-lg font-black text-white mb-2">كويز القواعد والنحو التفاعلي</h2>
-    <p class="text-xs text-slate-400 mb-6">مراجعة سريعة لجمع السالم والأفعال الخمسة</p>
-    
-    <div class="bg-slate-950 p-4 rounded-xl text-right border border-slate-850 mb-4">
-      <span class="text-[10px] text-blue-400 font-bold">السؤال الأول:</span>
-      <p class="text-xs font-bold text-slate-200 mt-1">أي من الكلمات التالية تعتبر "جمع مذكر سالم" مرفوع؟</p>
-    </div>
-
-    <div class="flex flex-col gap-2">
-      <button onclick="checkAnswer(true)" class="w-full py-3 bg-slate-950 hover:bg-blue-600/10 hover:border-blue-500 text-right px-4 rounded-xl border border-slate-800 text-xs transition-all flex justify-between items-center">
-        <span>أ) المعلمون</span>
-        <i class="fas fa-chevron-left text-slate-500 text-[10px]"></i>
-      </button>
-      <button onclick="checkAnswer(false)" class="w-full py-3 bg-slate-950 hover:bg-blue-600/10 hover:border-blue-500 text-right px-4 rounded-xl border border-slate-800 text-xs transition-all flex justify-between items-center">
-        <span>ب) المعلمين</span>
-        <i class="fas fa-chevron-left text-slate-500 text-[10px]"></i>
-      </button>
-    </div>
-    <p id="feedback" class="text-xs font-bold mt-4 hidden"></p>
-  </div>
-  <script>
-    function checkAnswer(isCorrect) {
-      const fb = document.getElementById('feedback');
-      fb.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
-      if (isCorrect) {
-        fb.innerHTML = '🟢 إجابة صحيحة وممتازة!';
-        fb.classList.add('text-emerald-400');
-        if (window.parent && window.parent.EndexSubmitBridge) {
-          window.parent.EndexSubmitBridge({ score: 10, total: 10 });
-        }
-      } else {
-        fb.innerHTML = '🔴 إجابة خاطئة، حاول مجدداً!';
-        fb.classList.add('text-red-400');
-        if (window.parent && window.parent.EndexSubmitBridge) {
-          window.parent.EndexSubmitBridge({ score: 0, total: 10 });
-        }
-      }
-    }
-  <\/script>
-</body>
-</html>`;
-            } else if (type === 'math_basics') {
-                templateCode = `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>أساسيات الرياضيات</title>
-  <script src="https://cdn.tailwindcss.com"><\/script>
-  <style>body { font-family: 'Tajawal', sans-serif; background: #030712; color: #f3f4f6; }</style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-4">
-  <div class="max-w-md w-full bg-slate-900 border border-slate-800 p-6 rounded-3xl text-center shadow-2xl">
-    <h2 class="text-base font-black text-white mb-4">كويز العمليات الحسابية والرياضيات</h2>
-    <div class="bg-slate-950 p-6 rounded-xl text-center border border-slate-850 mb-6">
-      <p class="text-sm font-black text-white">ما هي ناتج المعادلة التالية: $5 \\times (4 + 2) = ?$</p>
-    </div>
-    <div class="flex flex-col gap-2">
-      <button onclick="check(true)" class="py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs hover:border-blue-500 transition-all">30</button>
-      <button onclick="check(false)" class="py-3 bg-slate-950 border border-slate-800 rounded-xl text-xs hover:border-blue-500 transition-all">22</button>
-    </div>
-    <p id="res" class="text-xs font-bold mt-4 hidden"></p>
-  </div>
-  <script>
-    function check(isC) {
-      const r = document.getElementById('res');
-      r.classList.remove('hidden', 'text-emerald-400', 'text-red-400');
-      if (isC) {
-        r.innerHTML = "أصبت! الجواب الصحيح هو 30"; r.classList.add('text-emerald-400');
-        if(window.parent && window.parent.EndexSubmitBridge) window.parent.EndexSubmitBridge({score:10, total:10});
-      } else {
-        r.innerHTML = "خطأ، تذكر مراجعة ترتيب العمليات الحسابية."; r.classList.add('text-red-400');
-        if(window.parent && window.parent.EndexSubmitBridge) window.parent.EndexSubmitBridge({score:0, total:10});
-      }
-    }
-  <\/script>
-</body>
-</html>`;
-            }
-
-            editor.value = templateCode;
-            showAlert("تم إدراج قالب الأسئلة وحقنه في محرر المصنع!");
-        }
-
-        function openHelpGuideModal() {
-            document.getElementById('help-guide-modal').classList.remove('hidden');
-            playSfx('click');
-        }
-        function closeHelpGuideModal() {
-            document.getElementById('help-guide-modal').classList.add('hidden');
-        }
-
-        // ==================== [خلفية النيبولا المتفاعلة والتحريكية] ====================
-        function initNebulaBackground() {
-            const canvas = document.getElementById('canvas-nebula');
-            if(!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let particles = [];
             
-            function resize() {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-            }
-            resize();
-            window.addEventListener('resize', resize);
+            container.innerHTML = archive.map(item => `
+                <div class="glass p-4 rounded-xl flex flex-col justify-between gap-3 border border-slate-800 hover:border-indigo-500/30 transition-all">
+                    <div class="flex justify-between items-start gap-2">
+                        <div class="overflow-hidden">
+                            <h5 class="text-xs font-bold text-slate-200 truncate"><i class="fa-solid fa-file-code text-indigo-400"></i> ${item.title}</h5>
+                            <p class="text-[10px] text-slate-500 mt-1 font-mono truncate" style="direction: ltr;">${item.url}</p>
+                        </div>
+                        <!-- زر المفضلة (النجمة التفاعلية) -->
+                        <button onclick="toggleFavorite(${item.id})" class="text-base focus:outline-none transition transform hover:scale-125">
+                            <i class="${item.favorite ? 'fa-solid text-amber-400' : 'fa-regular text-slate-600 hover:text-amber-400'} fa-star"></i>
+                        </button>
+                    </div>
+                    <div class="flex gap-2 justify-end border-t border-slate-800/40 pt-3">
+                        <a href="${item.url}" target="_blank" class="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-up-right-from-square"></i> فتح
+                        </a>
+                        <button onclick="navigator.clipboard.writeText('${item.url}'); showToast('تم نسخ الرابط بنجاح','success');" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
+                            <i class="fa-solid fa-copy"></i> نسخ
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height;
-                    this.size = Math.random() * 2.5 + 0.5;
-                    this.speedX = Math.random() * 0.12 - 0.06;
-                    this.speedY = Math.random() * 0.12 - 0.06;
-                    this.alpha = Math.random();
-                    this.alphaSpeed = Math.random() * 0.006 + 0.002;
-                }
-                update() {
-                    this.x += this.speedX;
-                    this.y += this.speedY;
-                    this.alpha += this.alphaSpeed;
-                    if(this.alpha >= 1 || this.alpha <= 0) this.alphaSpeed *= -1;
-                }
-                draw() {
-                    ctx.fillStyle = `rgba(59, 130, 246, ${this.alpha})`;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fill();
-                }
+        function clearAllArchive() {
+            if(confirm("هل أنت متأكد تماماً من رغبتك في حذف الأرشيف؟ سيتم مسح المفضلة والمشاريع المحلية.")) {
+                localStorage.removeItem('ultimate_ide_archive');
+                renderArchive();
+                showToast("تم تفريغ الأرشيف والمفضلة بنجاح.", "info");
             }
-
-            for(let i=0; i<65; i++) {
-                particles.push(new Particle());
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.update();
-                    p.draw();
-                });
-                requestAnimationFrame(animate);
-            }
-            animate();
         }
     </script>
 </body>
 </html>
-
-```
