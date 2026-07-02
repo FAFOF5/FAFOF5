@@ -3,472 +3,736 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بيئة التطوير السحابية الثورية | Ultimate Serverless IDE</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Premium Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Pyodide Engine -->
-    <script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+    <title>DeepSeek X | منصة النشر الثورية</title>
     <style>
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: #0b0f19; }
-        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #334155; }
-        .glass { background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        :root {
+            --bg: #0a0e14;
+            --surface: #12171e;
+            --border: #1e2a38;
+            --text: #c9d1d9;
+            --primary: #3b8cff;
+            --primary-glow: rgba(59,140,255,0.3);
+            --btn-bg: #1f6feb;
+            --btn-hover: #388bfd;
+            --danger: #da3633;
+            --danger-hover: #f85149;
+        }
+        .light-mode {
+            --bg: #f5f7fa;
+            --surface: #ffffff;
+            --border: #d0d7de;
+            --text: #1f2328;
+            --primary: #0052cc;
+            --primary-glow: rgba(0,82,204,0.15);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: background 0.3s, color 0.3s;
+        }
+        header {
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 0.8rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        header h1 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #58a6ff, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        button, .btn {
+            background: var(--btn-bg);
+            border: none;
+            padding: 0.55rem 1.2rem;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            white-space: nowrap;
+            font-size: 0.9rem;
+        }
+        button:hover { background: var(--btn-hover); transform: translateY(-1px); box-shadow: 0 4px 12px var(--primary-glow); }
+        button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); box-shadow: none; }
+        button.secondary:hover { background: rgba(255,255,255,0.05); transform: none; }
+        button.danger { background: var(--danger); }
+        button.danger:hover { background: var(--danger-hover); }
+
+        .layout { display: flex; flex: 1; height: calc(100vh - 70px); overflow: hidden; }
+
+        /* الشريط الجانبي المطور */
+        .sidebar {
+            width: 340px;
+            background: var(--surface);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            padding: 1rem;
+            gap: 1.2rem;
+            transition: all 0.2s;
+        }
+        .sidebar h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .section { background: var(--bg); padding: 1rem; border-radius: 10px; border: 1px solid var(--border); }
+        .file-list { list-style: none; max-height: 180px; overflow-y: auto; margin-top: 0.3rem; }
+        .file-list li {
+            padding: 0.5rem 0.7rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .file-list li:hover { background: rgba(59,140,255,0.15); }
+
+        /* منطقة السحب والإفلات */
+        .drop-zone {
+            border: 2px dashed var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text);
+            opacity: 0.7;
+            transition: all 0.2s;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+        .drop-zone.drag-over { border-color: var(--primary); opacity: 1; background: rgba(59,140,255,0.05); }
+
+        /* المحرر والمعاينة */
+        .main { flex: 1; display: flex; flex-direction: column; padding: 1rem; gap: 0.8rem; overflow: hidden; }
+        .editor-preview { display: flex; gap: 1rem; flex: 1; min-height: 0; }
+        .editor-section, .preview-section {
+            flex: 1; display: flex; flex-direction: column; gap: 0.5rem; min-width: 0;
+            background: var(--surface); padding: 1rem; border-radius: 10px; border: 1px solid var(--border);
+        }
+        .tabs { display: flex; gap: 0.3rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; }
+        .tabs button { background: transparent; color: var(--text); border: none; opacity: 0.6; border-radius: 0; padding: 0.4rem 0.8rem; }
+        .tabs button.active { opacity: 1; border-bottom: 2px solid var(--primary); color: var(--primary); }
+        textarea {
+            flex: 1; background: #0b1119; border: 1px solid var(--border); border-radius: 6px;
+            color: #c9d1d9; padding: 0.8rem; font-family: 'JetBrains Mono', 'Consolas', monospace;
+            font-size: 13px; resize: none; direction: ltr; text-align: left; line-height: 1.5;
+        }
+        textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-glow); }
+        iframe { flex: 1; border: 1px solid var(--border); border-radius: 6px; background: white; }
+        .actions { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; margin-top: 0.3rem; }
+        input, select {
+            background: #0b1119; border: 1px solid var(--border); padding: 0.5rem 0.7rem;
+            color: var(--text); border-radius: 6px; font-family: inherit; font-size: 0.9rem;
+        }
+        .status { font-size: 0.9rem; font-weight: 500; margin-right: auto; }
+        .success { color: #3fb950; }
+        .error { color: #f85149; }
+        .info { color: #58a6ff; }
+
+        @media (max-width: 768px) {
+            .layout { flex-direction: column; }
+            .sidebar { width: 100%; max-height: 300px; }
+            .editor-preview { flex-direction: column; }
+        }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
-
-    <!-- نظام التفكيك والتشغيل التلقائي للروابط المولدّة -->
-    <script>
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('view')) {
-            try {
-                const compressedData = urlParams.get('view');
-                const decodedRaw = decodeURIComponent(escape(atob(compressedData)));
-                const project = JSON.parse(decodedRaw);
-                document.open();
-                document.write(project.code);
-                document.close();
-            } catch (e) {
-                try {
-                    const compressedCode = urlParams.get('view');
-                    const decodedCode = decodeURIComponent(escape(atob(compressedCode)));
-                    document.open();
-                    document.write(decodedCode);
-                    document.close();
-                } catch(err) {
-                    alert("خطأ في فك تشفير الرابط الصادر.");
-                }
-            }
-        }
-    </script>
-
-    <!-- الهيدر الاحترافي -->
-    <header class="bg-slate-900/90 border-b border-slate-800/80 sticky top-0 z-50 backdrop-filter backdrop-blur-md px-6 py-4 shadow-2xl">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
-            <div class="flex items-center gap-4">
-                <div class="bg-gradient-to-tr from-indigo-600 to-violet-600 p-3 rounded-2xl shadow-lg shadow-indigo-500/20">
-                    <i class="fa-solid fa-crown text-2xl text-white animate-bounce"></i>
-                </div>
-                <div>
-                    <h1 class="text-2xl font-black bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">المنصة السحابية الخارقة</h1>
-                    <p class="text-xs text-slate-400 mt-0.5">استضافة HTML وبايثون فورية مع نظام إدارة ملفات متكامل ومفضلة ذكية</p>
-                </div>
-            </div>
-            
-            <!-- أزرار تبديل لوحات التحكم -->
-            <nav class="flex bg-slate-950 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
-                <button onclick="switchTab('html-tab')" id="btn-html-tab" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center gap-2 shadow-md">
-                    <i class="fa-solid fa-code-branch text-base"></i> مطور الويب
-                </button>
-                <button onclick="switchTab('polyglot-tab')" id="btn-polyglot-tab" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-terminal text-base"></i> مختبر اللغات
-                </button>
-                <button onclick="switchTab('archive-tab')" id="btn-archive-tab" class="tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-star text-base text-amber-400"></i> المستودع والمفضلة
-                </button>
-            </nav>
+<body>
+    <header>
+        <h1>💠 DeepSeek X Publisher</h1>
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+            <button onclick="toggleTheme()" class="secondary">🌓</button>
+            <button onclick="toggleSettings()" class="secondary">⚙️ الإعدادات</button>
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto w-full p-4 md:p-6 flex-grow flex flex-col">
-        
-        <!-- التبويب الأول: مطور الويب مع المعاينة والحقن السريع -->
-        <section id="html-tab" class="tab-content flex-grow flex flex-col gap-6">
-            <div class="glass p-4 rounded-2xl flex flex-wrap gap-4 items-center justify-between">
-                <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-xs font-bold text-slate-400"><i class="fa-solid fa-bolt text-amber-400"></i> حقن فوري:</span>
-                    <button onclick="injectTemplate('quiz')" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition text-indigo-400">
-                        <i class="fa-solid fa-graduation-cap"></i> اختبار تفاعلي
-                    </button>
-                    <button onclick="injectTemplate('tailwind')" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-3 py-1.5 rounded-lg border border-slate-700 transition text-cyan-400">
-                        <i class="fa-brands fa-css3-alt"></i> قالب Tailwind
-                    </button>
-                </div>
-                <div class="w-full sm:w-auto">
-                    <input type="text" id="project-title" placeholder="عنوان المشروع (مثال: اختبار أبا بدر للغة الإنجليزية)" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2 text-sm w-full sm:w-72 focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-200">
-                </div>
+    <!-- إعدادات مخفية -->
+    <div id="settingsPanel" style="display:none; background:var(--surface); border-bottom:1px solid var(--border); padding:1rem;">
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; max-width:1000px; margin:0 auto;">
+            <input id="username" placeholder="اسم المستخدم">
+            <input id="repo" placeholder="اسم المستودع">
+            <input id="token" type="password" placeholder="رمز الوصول (Token)">
+            <button onclick="saveSettings()">💾 حفظ</button>
+        </div>
+    </div>
+
+    <div class="layout">
+        <!-- الشريط الجانبي الثوري -->
+        <div class="sidebar">
+            <div class="section">
+                <h3>📁 المستندات</h3>
+                <input id="fileSearch" placeholder="🔍 بحث..." oninput="filterFiles()" style="width:100%; margin-bottom:0.4rem;">
+                <ul class="file-list" id="fileList"><li>الرجاء إدخال الإعدادات</li></ul>
+                <button onclick="fetchRepoFiles()" style="width:100%; margin-top:0.4rem;" class="secondary">🔄 تحديث</button>
+                <button onclick="createNewFile()" style="width:100%; margin-top:0.3rem;">➕ صفحة جديدة</button>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow min-h-[450px]">
-                <!-- محرر الكود -->
-                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
-                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex justify-between items-center">
-                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-keyboard text-indigo-400"></i> شفرة المصدر الـ HTML</span>
-                        <span class="text-[10px] bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 px-2 py-0.5 rounded-md font-mono">مزامنة حية</span>
-                    </div>
-                    <textarea id="html-code" oninput="updateLivePreview()" class="w-full flex-grow p-4 bg-slate-950 text-emerald-400 font-mono text-sm focus:outline-none resize-none text-left" placeholder="<!-- اكتب كود الويب هنا -->" style="direction: ltr;"></textarea>
-                </div>
-                <!-- المعاينة الحية -->
-                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
-                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-circle-play text-purple-400"></i> المعاينة المباشرة للموقع المولد</span>
-                    </div>
-                    <div class="w-full flex-grow bg-white relative">
-                        <iframe id="live-preview-frame" class="w-full h-full border-none bg-white"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- لوحة التحكم بالتوليد -->
-            <div class="glass p-5 rounded-2xl flex flex-col gap-4">
-                <div class="flex justify-between items-center flex-wrap gap-4">
-                    <div>
-                        <h4 class="text-sm font-bold text-slate-200">هندسة وبث الرابط التفاعلي</h4>
-                        <p class="text-xs text-slate-400 mt-1">سيتم تشفير الكود بالكامل داخل الرابط وحفظه تلقائياً في مستودع المفضلة لديك.</p>
-                    </div>
-                    <div class="flex gap-2">
-                        <button onclick="downloadHTMLFile()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-3 rounded-xl border border-slate-700 transition flex items-center gap-2 text-xs">
-                            <i class="fa-solid fa-file-arrow-down text-base text-emerald-400"></i> تحميل كملف HTML
-                        </button>
-                        <button onclick="deployRevolutionaryHTML()" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold px-6 py-3 rounded-xl shadow-xl shadow-indigo-500/20 transition flex items-center gap-2 text-xs">
-                            <i class="fa-solid fa-globe text-base animate-spin"></i> توليد رابط التشغيل وحفظه
-                        </button>
-                    </div>
-                </div>
-
-                <div id="result-box" class="hidden mt-2 bg-slate-950 p-4 rounded-xl border border-indigo-500/30">
-                    <label class="block text-xs font-bold text-emerald-400 mb-2"><i class="fa-solid fa-circle-check"></i> تم التشفير والمزامنة بنجاح تام!</label>
-                    <div class="flex flex-col sm:flex-row gap-3">
-                        <input type="text" id="generated-url" readonly class="w-full p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs text-slate-300 font-mono select-all focus:outline-none" style="direction: ltr;">
-                        <div class="flex gap-2 justify-end">
-                            <button onclick="copyGeneratedLink()" class="bg-slate-800 hover:bg-slate-700 text-xs font-bold px-4 py-2 rounded-xl border border-slate-700 transition flex items-center gap-1.5 whitespace-nowrap">
-                                <i class="fa-solid fa-copy text-indigo-400"></i> نسخ
-                            </button>
-                            <a id="open-link" target="_blank" class="bg-indigo-600 hover:bg-indigo-700 text-xs font-bold px-4 py-2 rounded-xl transition flex items-center gap-1.5 text-white shadow-md">
-                                <i class="fa-solid fa-external-link"></i> زيارة الصفحة
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- التبويب الثاني: مختبر اللغات المفتوح -->
-        <section id="polyglot-tab" class="tab-content hidden flex-grow flex flex-col gap-6">
-            <div class="glass p-4 rounded-2xl flex items-center gap-3">
-                <span class="text-xs font-bold text-slate-300"><i class="fa-solid fa-microchip text-indigo-400"></i> محرك التشغيل:</span>
-                <select id="execution-lang" onchange="switchLanguageMode()" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-1.5 text-xs font-bold text-slate-200 focus:outline-none">
-                    <option value="python">Python 3 (WebAssembly Engine)</option>
-                    <option value="javascript">JavaScript (Local V8 Console)</option>
+            <div class="section">
+                <h3>⚡ قوالب</h3>
+                <select id="templateSelect" onchange="injectTemplate()" style="width:100%;">
+                    <option value="">-- اختر قالبًا --</option>
+                    <option value="quiz">📝 اختبار</option>
+                    <option value="landing">📄 صفحة هبوط</option>
+                    <option value="gallery">🖼️ معرض صور</option>
+                    <option value="blank">✨ فارغة</option>
                 </select>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-grow min-h-[400px]">
-                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
-                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex justify-between items-center">
-                        <span id="lang-editor-title" class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-brands fa-python text-yellow-400"></i> محرر كود Python 3</span>
-                    </div>
-                    <textarea id="polyglot-code" class="w-full flex-grow p-4 bg-slate-950 text-yellow-200 font-mono text-sm focus:outline-none resize-none text-left" style="direction: ltr;"></textarea>
-                    <div class="p-4 bg-slate-900 border-t border-slate-800">
-                        <button onclick="runPolyglotCode()" class="bg-gradient-to-r from-amber-500 to-yellow-500 text-slate-950 font-black px-6 py-2.5 rounded-xl transition flex items-center gap-2 text-xs">
-                            <i class="fa-solid fa-play"></i> تشغيل الكود البرمجي الآن
-                        </button>
-                    </div>
+            <div class="section">
+                <h3>📦 رفع ملفات وسائط</h3>
+                <div class="drop-zone" id="dropZone" onclick="document.getElementById('fileUpload').click()">
+                    <span>اسحب وأفلت ملفات هنا<br>أو انقر للاختيار</span>
+                    <input type="file" id="fileUpload" multiple style="display:none;" onchange="handleFiles(this.files)">
                 </div>
-                <div class="bg-slate-900 rounded-2xl border border-slate-800 flex flex-col overflow-hidden shadow-2xl">
-                    <div class="bg-slate-850 px-4 py-3 border-b border-slate-800 flex items-center justify-between">
-                        <span class="text-xs font-bold text-slate-300 flex items-center gap-2"><i class="fa-solid fa-terminal text-slate-400"></i> شاشة المخرجات والمنطق (Console)</span>
-                        <button onclick="clearTerminal()" class="text-[11px] text-slate-400 hover:text-red-400 transition flex items-center gap-1"><i class="fa-solid fa-trash"></i> مسح</button>
+                <ul class="file-list" id="assetsList" style="margin-top:0.5rem; max-height:120px;">
+                    <li style="color:#8b949e;">لم يتم رفع أصول بعد</li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h3>🏷️ SEO</h3>
+                <input id="pageTitle" placeholder="عنوان الصفحة" style="width:100%; margin-bottom:0.3rem;">
+                <input id="metaDescription" placeholder="وصف الصفحة" style="width:100%;">
+            </div>
+            <button onclick="downloadCurrent()" style="width:100%;" class="secondary">⬇️ تحميل الصفحة</button>
+        </div>
+
+        <!-- المحرر والمعاينة -->
+        <div class="main">
+            <div class="editor-preview">
+                <div class="editor-section">
+                    <div class="tabs">
+                        <button class="active" onclick="switchTab('html')">HTML</button>
+                        <button onclick="switchTab('css')">CSS</button>
+                        <button onclick="switchTab('js')">JS</button>
                     </div>
-                    <div id="polyglot-output" class="w-full flex-grow p-5 bg-black text-slate-200 font-mono text-sm overflow-y-auto whitespace-pre-wrap text-left" style="direction: ltr;">بانتظار الأوامر البرمجية...</div>
+                    <textarea id="htmlCode" placeholder="كود HTML هنا..."><h1>مرحباً بالعالم!</h1>
+<p>هذه صفحة تجريبية من DeepSeek X</p></textarea>
+                    <textarea id="cssCode" style="display:none;" placeholder="/* CSS هنا */">body { font-family: sans-serif; padding: 2rem; background: #f0f2f5; text-align: center; direction: rtl; }</textarea>
+                    <textarea id="jsCode" style="display:none;" placeholder="// JavaScript هنا">console.log('DeepSeek X جاهز!');</textarea>
+                </div>
+                <div class="preview-section">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">
+                        <span>👁️ معاينة</span>
+                        <button onclick="toggleMobilePreview()" class="secondary">📱 جوال</button>
+                    </div>
+                    <iframe id="previewFrame"></iframe>
                 </div>
             </div>
-        </section>
-
-        <!-- التبويب الثالث: المستودع الذكي والمفضلة وإدارة الروابط المحفوظة -->
-        <section id="archive-tab" class="tab-content hidden flex-grow">
-            <div class="glass p-6 rounded-2xl shadow-xl flex flex-col gap-4">
-                <!-- شريط البحث الفوري والفلترة والتحكم بالأرشيف -->
-                <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center border-b border-slate-800 pb-4 gap-4">
-                    <div class="flex items-center gap-3 flex-grow max-w-xl">
-                        <div class="relative w-full">
-                            <i class="fa-solid fa-magnifying-glass absolute right-3 top-3.5 text-slate-500 text-xs"></i>
-                            <input type="text" id="archive-search" oninput="renderArchive()" placeholder="ابحث في مشاريعك وروابطك المحفوظة..." class="bg-slate-900 border border-slate-800 rounded-xl pr-9 pl-4 py-2.5 text-xs w-full focus:ring-2 focus:ring-indigo-500 focus:outline-none text-slate-200">
-                        </div>
-                        <button onclick="toggleFavFilter()" id="btn-fav-filter" class="bg-slate-900 hover:bg-slate-800 border border-slate-800 font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-300">
-                            <i id="fav-filter-icon" class="fa-regular fa-star text-amber-400"></i> المفضلة فقط
-                        </button>
-                    </div>
-                    <button onclick="clearAllArchive()" class="text-xs bg-red-950/30 text-red-400 hover:bg-red-900/40 border border-red-900/40 font-bold px-4 py-2.5 rounded-xl transition self-end md:self-auto">
-                        <i class="fa-solid fa-trash-can"></i> إخلاء الأرشيف بالكامل
-                    </button>
-                </div>
-                
-                <!-- شبكة المشاريع والروابط المحفوظة -->
-                <div id="archive-list" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[480px] overflow-y-auto p-1">
-                    <!-- تعبأ ديناميكياً -->
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- نظام الإشعارات العائم (Toast Notifications) -->
-    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2"></div>
-
-    <footer class="bg-slate-950 text-center py-4 text-xs text-slate-600 border-t border-slate-900/60 font-mono">
-        &lt; Advanced File-Manager & Smart-Favouriting Engine Connected // Serverless &gt;
-    </footer>
-
-    <!-- كود المنظومة البرمجية المدمجة -->
-    <script>
-        let pyodideInstance = null;
-        let onlyShowFavorites = false; // حالة فلتر المفضلة
-
-        const templates = {
-            quiz: `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <title>نموذج اختبار تفاعلي</title>
-    <script src="https://cdn.tailwindcss.com"><\/script>
-</head>
-<body class="bg-slate-50 p-6">
-    <div class="max-w-md mx-auto bg-white p-6 rounded-2xl shadow-xl mt-10 border border-slate-100">
-        <h2 class="text-lg font-black text-indigo-600 mb-1">📝 اختبار اللغة الإنجليزية القصير</h2>
-        <p class="text-xs text-slate-400 mb-4">أجب على السؤال التالي لتظهر نتيجتك فوراً:</p>
-        <div class="p-4 bg-slate-50 rounded-xl mb-4 border border-slate-200">
-            <p class="text-sm font-bold text-slate-800 text-left" style="direction:ltr;">Choose the correct sentence:</p>
-            <div class="mt-3 space-y-2">
-                <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200 text-xs cursor-pointer"><input type="radio" name="eng_q" value="w"> I plays tennis every day.</label>
-                <label class="flex items-center gap-2 p-2 bg-white rounded-lg border border-slate-200 text-xs cursor-pointer"><input type="radio" name="eng_q" value="c"> I play tennis every day.</label>
+            <div class="actions">
+                <input id="customFilename" placeholder="اسم الملف للنشر" style="width:180px;">
+                <button onclick="publishPage()">📤 نشر</button>
+                <button onclick="renameFile()" class="secondary">✏️ إعادة تسمية</button>
+                <button onclick="deleteCurrentFile()" class="danger">🗑️ حذف</button>
+                <span id="statusMessage" class="status"></span>
             </div>
         </div>
-        <button onclick="score()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded-xl text-xs">تصحيح الإجابة</button>
-        <p id="res" class="mt-3 text-center text-xs font-bold hidden"></p>
     </div>
+
     <script>
-        function score(){
-            const ans = document.querySelector('input[name="eng_q"]:checked');
-            const r = document.getElementById('res'); r.classList.remove('hidden');
-            if(ans && ans.value === 'c') { r.className="mt-3 text-center text-xs font-bold text-green-600 p-2 bg-green-50 rounded-lg"; r.innerText="🎉 إجابة صحيحة وممتازة!"; }
-            else { r.className="mt-3 text-center text-xs font-bold text-red-600 p-2 bg-red-50 rounded-lg"; r.innerText="❌ إجابة خاطئة، حاول مرة أخرى."; }
+        // ======================== الإعدادات الأساسية ========================
+        let settings = JSON.parse(localStorage.getItem('dsx_settings') || '{}');
+        let allFiles = [];
+        let currentSha = null;
+        let uploadedAssets = []; // قائمة الملفات المرفوعة (محلياً وسحابياً)
+
+        // تعبئة الحقول من الإعدادات المحفوظة
+        document.getElementById('username').value = settings.username || '';
+        document.getElementById('repo').value = settings.repo || '';
+        document.getElementById('token').value = settings.token || '';
+
+        function saveSettings() {
+            settings = {
+                username: document.getElementById('username').value.trim(),
+                repo: document.getElementById('repo').value.trim(),
+                token: document.getElementById('token').value.trim()
+            };
+            localStorage.setItem('dsx_settings', JSON.stringify(settings));
+            showStatus('✅ تم الحفظ والمزامنة', 'success');
+            fetchRepoFiles();
+            fetchAssets(); // جلب الأصول أيضاً
         }
-    <\/script>
-</body>
-</html>`,
-            tailwind: `<!DOCTYPE html>
-<html lang="ar" dir="rtl">
+
+        function toggleSettings() {
+            const p = document.getElementById('settingsPanel');
+            p.style.display = p.style.display === 'none' ? 'block' : 'none';
+        }
+
+        // ======================== المظهر ========================
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            localStorage.setItem('dsx_theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+        if (localStorage.getItem('dsx_theme') === 'light') document.body.classList.add('light-mode');
+
+        // ======================== التبويبات ========================
+        function switchTab(tab) {
+            document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('htmlCode').style.display = tab === 'html' ? 'block' : 'none';
+            document.getElementById('cssCode').style.display = tab === 'css' ? 'block' : 'none';
+            document.getElementById('jsCode').style.display = tab === 'js' ? 'block' : 'none';
+        }
+
+        // ======================== بناء الصفحة والمعاينة ========================
+        function buildFullHTML() {
+            const html = document.getElementById('htmlCode').value;
+            const css = document.getElementById('cssCode').value;
+            const js = document.getElementById('jsCode').value;
+            const title = document.getElementById('pageTitle').value || 'DeepSeek X Page';
+            const desc = document.getElementById('metaDescription').value || '';
+            return `<!DOCTYPE html>
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <script src="https://cdn.tailwindcss.com"><\/script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${title}</title>
+    <meta name="description" content="${desc}">
+    <style>${css}</style>
 </head>
-<body class="bg-gradient-to-tr from-slate-900 to-indigo-950 text-white min-h-screen flex items-center justify-center">
-    <h1 class="text-2xl font-black tracking-wider">قالب فارغ جاهز للإبداع 🚀</h1>
+<body>
+${html}
+<script>${js}<\/script>
 </body>
-</html>`,
-            pythonDefault: `def welcome(name):\n    return f"مرحباً {name}! محرك البايثون يعمل بكفاءة مطلقة."\n\nprint(welcome("أبا بدر وأبو عبدالعزيز"))`,
-            jsDefault: `console.log("مرحباً بك في لوحة تحكم جافاسكربت الافتراضية!");\nconsole.log("النتيجة المنطقية للحساب: " + (50 * 2));`
-        };
-
-        window.onload = function() {
-            document.getElementById('html-code').value = templates.quiz;
-            document.getElementById('polyglot-code').value = templates.pythonDefault;
-            updateLivePreview();
-        };
-
-        function showToast(message, type = "info") {
-            const container = document.getElementById('toast-container');
-            const toast = document.createElement('div');
-            toast.className = `glass px-4 py-3 rounded-xl text-xs font-bold shadow-2xl flex items-center gap-2 border transition-all duration-300 transform translate-y-2 opacity-0`;
-            if(type === 'success') toast.classList.add('border-emerald-500/30', 'text-emerald-400');
-            else if(type === 'error') toast.classList.add('border-red-500/30', 'text-red-400');
-            else toast.classList.add('border-indigo-500/30', 'text-indigo-400');
-
-            toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-circle-check' : type === 'error' ? 'fa-circle-xmark' : 'fa-circle-info'} text-sm"></i><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => { toast.classList.remove('translate-y-2', 'opacity-0'); }, 10);
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => { toast.remove(); }, 300);
-            }, 3500);
+</html>`;
         }
 
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-400 hover:text-white flex items-center gap-2";
+        function updatePreview() {
+            document.getElementById('previewFrame').srcdoc = buildFullHTML();
+            saveDraft();
+        }
+        document.querySelectorAll('textarea').forEach(ta => {
+            ta.addEventListener('input', updatePreview);
+            ta.addEventListener('keydown', function(e) {
+                if (e.key === 'Tab') {
+                    e.preventDefault();
+                    const start = this.selectionStart;
+                    const end = this.selectionEnd;
+                    this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                    this.selectionStart = this.selectionEnd = start + 4;
+                    updatePreview();
+                }
             });
-            const activeBtn = document.getElementById(`btn-${tabId}`);
-            activeBtn.className = "tab-btn px-5 py-2.5 rounded-xl text-sm font-bold transition-all bg-gradient-to-r from-indigo-600 to-purple-600 text-white flex items-center gap-2 shadow-md";
-            if(tabId === 'archive-tab') renderArchive();
+        });
+        document.getElementById('pageTitle').addEventListener('input', updatePreview);
+        document.getElementById('metaDescription').addEventListener('input', updatePreview);
+
+        // ======================== المسودة ========================
+        function saveDraft() {
+            const draft = {
+                html: document.getElementById('htmlCode').value,
+                css: document.getElementById('cssCode').value,
+                js: document.getElementById('jsCode').value,
+                title: document.getElementById('pageTitle').value,
+                desc: document.getElementById('metaDescription').value,
+                filename: document.getElementById('customFilename').value,
+                sha: currentSha
+            };
+            localStorage.setItem('dsx_draft', JSON.stringify(draft));
         }
-
-        function updateLivePreview() {
-            const code = document.getElementById('html-code').value;
-            document.getElementById('live-preview-frame').srcdoc = code;
-        }
-
-        function injectTemplate(type) {
-            document.getElementById('html-code').value = templates[type];
-            updateLivePreview();
-            showToast(`تم حقن القالب المختار بنجاح`, "success");
-        }
-
-        function switchLanguageMode() {
-            const lang = document.getElementById('execution-lang').value;
-            const titleEl = document.getElementById('lang-editor-title');
-            const codeArea = document.getElementById('polyglot-code');
-            if(lang === 'python') {
-                titleEl.innerHTML = `<i class="fa-brands fa-python text-yellow-400"></i> محرر كود Python 3`;
-                codeArea.value = templates.pythonDefault;
-            } else {
-                titleEl.innerHTML = `<i class="fa-brands fa-js text-yellow-300"></i> محرر كود JavaScript`;
-                codeArea.value = templates.jsDefault;
-            }
-            clearTerminal();
-        }
-
-        function clearTerminal() {
-            document.getElementById('polyglot-output').innerText = "تم تنظيف الشاشة...";
-        }
-
-        // تحميل الكود كملف HTML مباشر على الجهاز
-        function downloadHTMLFile() {
-            const code = document.getElementById('html-code').value.trim();
-            let title = document.getElementById('project-title').value.trim() || "index";
-            if (!code) { showToast("المحرر فارغ، لا يوجد شيء لتحميله!", "error"); return; }
-            
-            const blob = new Blob([code], { type: "text/html;charset=utf-8" });
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = `${title}.html`;
-            link.click();
-            showToast("تم تحميل ملف الـ HTML بنجاح على جهازك!", "success");
-        }
-
-        // إنتاج الرابط السحابي المحمول للمشروع
-        function deployRevolutionaryHTML() {
-            const code = document.getElementById('html-code').value.trim();
-            let title = document.getElementById('project-title').value.trim() || "مشروع وب فوري";
-            if (!code) { showToast("برجاء كتابة شفرة كود أولاً!", "error"); return; }
-
-            try {
-                const projectObject = { title: title, code: code, timestamp: Date.now() };
-                const compressed = btoa(unescape(encodeURIComponent(JSON.stringify(projectObject))));
-                const shareUrl = `${window.location.origin}${window.location.pathname}?view=${compressed}`;
-                
-                document.getElementById('generated-url').value = shareUrl;
-                document.getElementById('open-link').href = shareUrl;
-                document.getElementById('result-box').classList.remove('hidden');
-                
-                // حفظ البيانات في الأرشيف المحلي مع تعيين المفضلة لـ false افتراضياً
-                let archive = JSON.parse(localStorage.getItem('ultimate_ide_archive')) || [];
-                archive.unshift({ id: Date.now(), title: title, url: shareUrl, favorite: false });
-                localStorage.setItem('ultimate_ide_archive', JSON.stringify(archive));
-                
-                showToast("تم توليد الرابط وحفظ المشروع في الأرشيف!", "success");
-            } catch (err) {
-                showToast("فشل في تشفير وحزم الكود.", "error");
+        function loadDraft() {
+            const draft = JSON.parse(localStorage.getItem('dsx_draft'));
+            if (draft) {
+                document.getElementById('htmlCode').value = draft.html || '';
+                document.getElementById('cssCode').value = draft.css || '';
+                document.getElementById('jsCode').value = draft.js || '';
+                document.getElementById('pageTitle').value = draft.title || '';
+                document.getElementById('metaDescription').value = draft.desc || '';
+                document.getElementById('customFilename').value = draft.filename || '';
+                currentSha = draft.sha || null;
+                updatePreview();
             }
         }
 
-        function copyGeneratedLink() {
-            const input = document.getElementById('generated-url');
-            input.select(); document.execCommand('copy');
-            showToast("تم نسخ رابط الويب بنجاح!", "success");
+        // ======================== الترميز الآمن ========================
+        function encodeBase64(str) {
+            const bytes = new TextEncoder().encode(str);
+            let binary = '';
+            bytes.forEach(b => binary += String.fromCharCode(b));
+            return btoa(binary);
+        }
+        function decodeBase64(b64) {
+            const binary = atob(b64);
+            const bytes = new Uint8Array(binary.length);
+            for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+            return new TextDecoder().decode(bytes);
         }
 
-        // تشغيل البايثون والجافاسكربت
-        async function runPolyglotCode() {
-            const lang = document.getElementById('execution-lang').value;
-            const code = document.getElementById('polyglot-code').value;
-            const outputTerminal = document.getElementById('polyglot-output');
-            outputTerminal.innerText = "جاري تهيئة البيئة والتشغيل...";
-            
-            if(lang === 'python') {
-                try {
-                    if (!pyodideInstance) pyodideInstance = await loadPyodide();
-                    let stdoutBuffer = "";
-                    pyodideInstance.setStdout({ batched: (text) => { stdoutBuffer += text + "\n"; } });
-                    await pyodideInstance.runPythonAsync(code);
-                    outputTerminal.innerText = stdoutBuffer || "تم التنفيذ (بدون مخرجات print).";
-                } catch (err) { outputTerminal.innerText = `[خطأ بايثون]:\n${err}`; }
-            } else {
-                let oldLog = console.log; let logs = [];
-                console.log = function (msg) { logs.push(msg); oldLog.apply(console, arguments); };
-                try { eval(code); outputTerminal.innerText = logs.join('\n') || "تم التنفيذ بنجاح."; } 
-                catch(err) { outputTerminal.innerText = `[خطأ جافاسكربت]:\n${err}`; }
-                console.log = oldLog;
-            }
+        // ======================== إدارة الملفات ========================
+        function filterFiles() {
+            const query = document.getElementById('fileSearch').value.toLowerCase();
+            const filtered = allFiles.filter(f => f.path.toLowerCase().includes(query) && !f.path.startsWith('assets/'));
+            renderFileList(filtered);
         }
-
-        // تبديل فلترة المفضلة
-        function toggleFavFilter() {
-            onlyShowFavorites = !onlyShowFavorites;
-            const btn = document.getElementById('btn-fav-filter');
-            const icon = document.getElementById('fav-filter-icon');
-            if(onlyShowFavorites) {
-                btn.className = "bg-amber-600 hover:bg-amber-700 text-white font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-1.5 whitespace-nowrap";
-                icon.className = "fa-solid fa-star text-white";
-            } else {
-                btn.className = "bg-slate-900 hover:bg-slate-800 border border-slate-800 font-bold px-4 py-2.5 rounded-xl transition text-xs flex items-center gap-1.5 whitespace-nowrap text-slate-300";
-                icon.className = "fa-regular fa-star text-amber-400";
-            }
-            renderArchive();
-        }
-
-        // عكس حالة المفضلة لمشروع معين
-        function toggleFavorite(id) {
-            let archive = JSON.parse(localStorage.getItem('ultimate_ide_archive')) || [];
-            archive = archive.map(item => {
-                if(item.id === id) item.favorite = !item.favorite;
-                return item;
-            });
-            localStorage.setItem('ultimate_ide_archive', JSON.stringify(archive));
-            renderArchive();
-            showToast("تم تحديث حالة المفضلة للمشروع", "success");
-        }
-
-        // رندرة وبناء واجهة الأرشيف مع المفضلة والبحث
-        function renderArchive() {
-            const container = document.getElementById('archive-list');
-            const searchText = document.getElementById('archive-search').value.toLowerCase().trim();
-            let archive = JSON.parse(localStorage.getItem('ultimate_ide_archive')) || [];
-            
-            // تطبيق الفلترة بالبحث والمفضلة
-            if(onlyShowFavorites) archive = archive.filter(item => item.favorite);
-            if(searchText) archive = archive.filter(item => item.title.toLowerCase().includes(searchText));
-            
-            if(archive.length === 0) {
-                container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-sm"><i class="fa-solid fa-box-open text-3xl mb-2 block"></i> لم يتم العثور على أي مشاريع تطابق خيارات الفلترة الحالية.</div>`;
+        function renderFileList(files) {
+            const list = document.getElementById('fileList');
+            if (files.length === 0) {
+                list.innerHTML = '<li style="color:#8b949e; justify-content:center;">لا توجد ملفات</li>';
                 return;
             }
-            
-            container.innerHTML = archive.map(item => `
-                <div class="glass p-4 rounded-xl flex flex-col justify-between gap-3 border border-slate-800 hover:border-indigo-500/30 transition-all">
-                    <div class="flex justify-between items-start gap-2">
-                        <div class="overflow-hidden">
-                            <h5 class="text-xs font-bold text-slate-200 truncate"><i class="fa-solid fa-file-code text-indigo-400"></i> ${item.title}</h5>
-                            <p class="text-[10px] text-slate-500 mt-1 font-mono truncate" style="direction: ltr;">${item.url}</p>
-                        </div>
-                        <!-- زر المفضلة (النجمة التفاعلية) -->
-                        <button onclick="toggleFavorite(${item.id})" class="text-base focus:outline-none transition transform hover:scale-125">
-                            <i class="${item.favorite ? 'fa-solid text-amber-400' : 'fa-regular text-slate-600 hover:text-amber-400'} fa-star"></i>
-                        </button>
+            list.innerHTML = files.map(f => `
+                <li>
+                    <span style="flex:1; direction:ltr; text-align:left; overflow:hidden; text-overflow:ellipsis;" title="${f.path}">📄 ${f.path}</span>
+                    <div>
+                        <button onclick="loadFile('${f.path}')" class="secondary" style="padding:0.2rem 0.5rem; font-size:0.8rem;">فتح</button>
+                        <a href="https://${settings.username}.github.io/${settings.repo}/${f.path}" target="_blank" class="secondary" style="padding:0.2rem 0.5rem; font-size:0.8rem; text-decoration:none;">🔗</a>
                     </div>
-                    <div class="flex gap-2 justify-end border-t border-slate-800/40 pt-3">
-                        <a href="${item.url}" target="_blank" class="bg-indigo-600/10 hover:bg-indigo-600 text-indigo-400 hover:text-white text-[11px] font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                            <i class="fa-solid fa-up-right-from-square"></i> فتح
-                        </a>
-                        <button onclick="navigator.clipboard.writeText('${item.url}'); showToast('تم نسخ الرابط بنجاح','success');" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[11px] font-bold px-3 py-1.5 rounded-lg transition flex items-center gap-1">
-                            <i class="fa-solid fa-copy"></i> نسخ
-                        </button>
-                    </div>
-                </div>
+                </li>
             `).join('');
         }
 
-        function clearAllArchive() {
-            if(confirm("هل أنت متأكد تماماً من رغبتك في حذف الأرشيف؟ سيتم مسح المفضلة والمشاريع المحلية.")) {
-                localStorage.removeItem('ultimate_ide_archive');
-                renderArchive();
-                showToast("تم تفريغ الأرشيف والمفضلة بنجاح.", "info");
+        async function fetchRepoFiles() {
+            if (!settings.token || !settings.username || !settings.repo) return;
+            const list = document.getElementById('fileList');
+            list.innerHTML = '<li>⏳ جاري الجلب...</li>';
+            try {
+                const res = await fetch(`https://api.github.com/repos/${settings.username}/${settings.repo}/git/trees/main?recursive=1`, {
+                    headers: { Authorization: `token ${settings.token}` }
+                });
+                if (!res.ok) throw new Error('فشل الاتصال. تحقق من التوكن والمستودع.');
+                const data = await res.json();
+                allFiles = data.tree.filter(f => f.path.endsWith('.html') || f.path.startsWith('assets/'));
+                const htmlFiles = allFiles.filter(f => f.path.endsWith('.html') && !f.path.startsWith('assets/'));
+                renderFileList(htmlFiles);
+                // تحديث قائمة الأصول
+                fetchAssets();
+            } catch (e) {
+                list.innerHTML = `<li style="color:var(--danger);">❌ ${e.message}</li>`;
             }
+        }
+
+        async function loadFile(path) {
+            showStatus(`⏳ تحميل ${path}...`, 'info');
+            try {
+                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${path}`;
+                const res = await fetch(url, { headers: { Authorization: `token ${settings.token}` } });
+                if (!res.ok) throw new Error('تعذر تحميل الملف');
+                const data = await res.json();
+                currentSha = data.sha;
+                const content = decodeBase64(data.content);
+
+                const titleMatch = content.match(/<title>([\s\S]*?)<\/title>/i);
+                const descMatch = content.match(/<meta name="description" content="([^"]*)"/i);
+                document.getElementById('pageTitle').value = titleMatch ? titleMatch[1].trim() : '';
+                document.getElementById('metaDescription').value = descMatch ? descMatch[1].trim() : '';
+
+                const styleMatch = content.match(/<style>([\s\S]*?)<\/style>/i);
+                const scriptMatch = content.match(/<script>([\s\S]*?)<\/script>/i);
+                const bodyMatch = content.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+                document.getElementById('cssCode').value = styleMatch ? styleMatch[1].trim() : '';
+                document.getElementById('jsCode').value = scriptMatch ? scriptMatch[1].trim() : '';
+                document.getElementById('htmlCode').value = bodyMatch ? bodyMatch[1].replace(/<script>[\s\S]*?<\/script>/gi, '').trim() : content;
+                document.getElementById('customFilename').value = path;
+
+                updatePreview();
+                showStatus(`✅ تم فتح ${path}`, 'success');
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+            }
+        }
+
+        // ======================== رفع الملفات الثنائية (ثوري) ========================
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('drag-over');
+            handleFiles(e.dataTransfer.files);
+        });
+
+        async function handleFiles(fileList) {
+            if (!settings.token || !settings.username || !settings.repo) {
+                showStatus('❌ املأ الإعدادات أولاً', 'error');
+                return;
+            }
+            showStatus('⏳ جاري رفع الملفات...', 'info');
+            for (let file of fileList) {
+                try {
+                    const reader = new FileReader();
+                    const base64Promise = new Promise((resolve) => {
+                        reader.onload = () => resolve(reader.result.split(',')[1]);
+                    });
+                    reader.readAsDataURL(file);
+                    const base64 = await base64Promise;
+
+                    const assetPath = `assets/${file.name}`;
+                    const apiUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${assetPath}`;
+
+                    // تحقق من وجود الملف مسبقاً للحصول على SHA إذا كان موجوداً
+                    let sha = null;
+                    const checkRes = await fetch(apiUrl, { headers: { Authorization: `token ${settings.token}` } });
+                    if (checkRes.ok) {
+                        const checkData = await checkRes.json();
+                        sha = checkData.sha;
+                    }
+
+                    const body = {
+                        message: `رفع ${file.name} عبر DeepSeek X`,
+                        content: base64
+                    };
+                    if (sha) body.sha = sha;
+
+                    const res = await fetch(apiUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${settings.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(body)
+                    });
+                    if (!res.ok) {
+                        const err = await res.json();
+                        throw new Error(`فشل رفع ${file.name}: ${err.message}`);
+                    }
+                    showStatus(`✅ تم رفع ${file.name}`, 'success');
+                } catch (e) {
+                    showStatus(`❌ ${e.message}`, 'error');
+                }
+            }
+            fetchAssets();
+        }
+
+        async function fetchAssets() {
+            if (!settings.token || !settings.username || !settings.repo) return;
+            try {
+                const res = await fetch(`https://api.github.com/repos/${settings.username}/${settings.repo}/git/trees/main?recursive=1`, {
+                    headers: { Authorization: `token ${settings.token}` }
+                });
+                if (!res.ok) return;
+                const data = await res.json();
+                const assets = data.tree.filter(f => f.path.startsWith('assets/'));
+                uploadedAssets = assets;
+                const list = document.getElementById('assetsList');
+                if (assets.length === 0) {
+                    list.innerHTML = '<li style="color:#8b949e;">لا توجد أصول مرفوعة</li>';
+                } else {
+                    list.innerHTML = assets.map(a => `
+                        <li>
+                            <span style="flex:1; direction:ltr; text-align:left; overflow:hidden; text-overflow:ellipsis;" title="${a.path}">📎 ${a.path.replace('assets/', '')}</span>
+                            <button onclick="copyAssetUrl('${a.path}')" class="secondary" style="padding:0.2rem 0.5rem; font-size:0.7rem;">نسخ الرابط</button>
+                        </li>
+                    `).join('');
+                }
+            } catch (e) {}
+        }
+
+        function copyAssetUrl(path) {
+            const url = `https://${settings.username}.github.io/${settings.repo}/${path}`;
+            navigator.clipboard.writeText(url).then(() => {
+                showStatus('📋 تم نسخ رابط الأصل', 'success');
+            });
+        }
+
+        // ======================== النشر ========================
+        async function publishPage() {
+            if (!settings.token || !settings.username || !settings.repo) {
+                showStatus('❌ املأ الإعدادات أولاً', 'error');
+                toggleSettings();
+                return;
+            }
+            let filename = document.getElementById('customFilename').value.trim();
+            if (!filename) filename = `page_${Date.now()}.html`;
+            if (!filename.endsWith('.html')) filename += '.html';
+
+            const content = buildFullHTML();
+            const base64 = encodeBase64(content);
+            const apiUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${filename}`;
+
+            showStatus('⏳ جاري النشر...', 'info');
+            try {
+                // إنشاء نسخة احتياطية قبل النشر إذا كان الملف موجوداً
+                let sha = currentSha;
+                if (!sha) {
+                    const check = await fetch(apiUrl, { headers: { Authorization: `token ${settings.token}` } });
+                    if (check.ok) {
+                        const checkData = await check.json();
+                        sha = checkData.sha;
+                        // حفظ نسخة احتياطية
+                        const backupPath = `${filename}.backup.html`;
+                        const backupUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${backupPath}`;
+                        await fetch(backupUrl, {
+                            method: 'PUT',
+                            headers: {
+                                'Authorization': `token ${settings.token}`,
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                message: `نسخة احتياطية تلقائية قبل تعديل ${filename}`,
+                                content: checkData.content
+                            })
+                        });
+                    }
+                }
+
+                const body = { message: `نشر ${filename} عبر DeepSeek X`, content: base64 };
+                if (sha) body.sha = sha;
+
+                const putRes = await fetch(apiUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${settings.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                if (!putRes.ok) {
+                    const err = await putRes.json();
+                    throw new Error(err.message);
+                }
+                const putData = await putRes.json();
+                currentSha = putData.content.sha;
+                saveDraft();
+
+                const pageUrl = `https://${settings.username}.github.io/${settings.repo}/${filename}`;
+                showStatus(`🚀 نُشر! <a href="${pageUrl}" target="_blank" style="color:var(--primary);">${pageUrl}</a>`, 'success');
+                fetchRepoFiles();
+            } catch (e) {
+                showStatus(`❌ ${e.message}`, 'error');
+            }
+        }
+
+        // ======================== إعادة التسمية والحذف ========================
+        async function renameFile() {
+            const oldName = document.getElementById('customFilename').value.trim();
+            if (!oldName) return showStatus('⚠️ لا يوجد ملف', 'error');
+            const newName = prompt('الاسم الجديد:', oldName);
+            if (!newName || newName === oldName) return;
+            try {
+                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${oldName}`;
+                const res = await fetch(url, { headers: { Authorization: `token ${settings.token}` } });
+                if (!res.ok) throw new Error('الملف غير موجود');
+                const data = await res.json();
+                // إنشاء جديد
+                const newUrl = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${newName}`;
+                await fetch(newUrl, {
+                    method: 'PUT',
+                    headers: { 'Authorization': `token ${settings.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `إعادة تسمية إلى ${newName}`, content: data.content })
+                });
+                // حذف القديم
+                await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `token ${settings.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `حذف ${oldName}`, sha: data.sha })
+                });
+                document.getElementById('customFilename').value = newName;
+                currentSha = null;
+                showStatus(`✅ تمت إعادة التسمية`, 'success');
+                fetchRepoFiles();
+            } catch (e) { showStatus(`❌ ${e.message}`, 'error'); }
+        }
+
+        async function deleteCurrentFile() {
+            const filename = document.getElementById('customFilename').value.trim();
+            if (!filename) return showStatus('⚠️ لا يوجد ملف', 'error');
+            if (!confirm(`حذف ${filename} من المستودع؟`)) return;
+            try {
+                let sha = currentSha;
+                const url = `https://api.github.com/repos/${settings.username}/${settings.repo}/contents/${filename}`;
+                if (!sha) {
+                    const res = await fetch(url, { headers: { Authorization: `token ${settings.token}` } });
+                    if (!res.ok) throw new Error('الملف غير موجود');
+                    const data = await res.json();
+                    sha = data.sha;
+                }
+                await fetch(url, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `token ${settings.token}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: `حذف ${filename}`, sha: sha })
+                });
+                showStatus('🗑️ تم الحذف', 'success');
+                currentSha = null;
+                createNewFile();
+                fetchRepoFiles();
+            } catch (e) { showStatus(`❌ ${e.message}`, 'error'); }
+        }
+
+        // ======================== القوالب ========================
+        function injectTemplate() {
+            const type = document.getElementById('templateSelect').value;
+            if (type === 'quiz') {
+                document.getElementById('htmlCode').value = `<h2>اختبار سريع</h2><p>ما عاصمة السعودية؟</p>
+<button onclick="check('الرياض')">الرياض</button> <button onclick="check('جدة')">جدة</button>
+<p id="result"></p>`;
+                document.getElementById('cssCode').value = 'body{font-family:sans-serif;text-align:center;padding:2rem;} button{margin:0.5rem;padding:0.8rem 2rem;}';
+                document.getElementById('jsCode').value = `function check(a){document.getElementById('result').textContent= a==='الرياض'?'✅ صحيح':'❌ خطأ';}`;
+            } else if (type === 'landing') {
+                document.getElementById('htmlCode').value = `<header><h1>موقعي الرائع</h1><nav>...</nav></header><main>محتوى رئيسي</main><footer>حقوق 2025</footer>`;
+                document.getElementById('cssCode').value = 'body{font-family:Arial;margin:0;} header{background:#333;color:white;padding:1rem;} footer{background:#eee;text-align:center;padding:1rem;}';
+                document.getElementById('jsCode').value = '';
+            } else if (type === 'gallery') {
+                document.getElementById('htmlCode').value = `<h2>معرض الصور</h2><div class="gallery"><img src="assets/example.jpg" alt="صورة"><img src="assets/example2.jpg"></div>`;
+                document.getElementById('cssCode').value = '.gallery{display:flex;gap:10px;flex-wrap:wrap;} .gallery img{max-width:200px;border-radius:8px;}';
+                document.getElementById('jsCode').value = '';
+            } else if (type === 'blank') { createNewFile(); return; }
+            updatePreview();
+            showStatus('⚡ تم حقن القالب', 'success');
+        }
+
+        function createNewFile() {
+            document.getElementById('htmlCode').value = '<h1>صفحة جديدة</h1><p>ابدأ الكتابة...</p>';
+            document.getElementById('cssCode').value = 'body{font-family:sans-serif;direction:rtl;padding:2rem;}';
+            document.getElementById('jsCode').value = '';
+            document.getElementById('pageTitle').value = 'صفحة جديدة';
+            document.getElementById('metaDescription').value = '';
+            document.getElementById('customFilename').value = '';
+            currentSha = null;
+            updatePreview();
+        }
+
+        // ======================== معاينة الجوال ========================
+        let mobileMode = false;
+        function toggleMobilePreview() {
+            mobileMode = !mobileMode;
+            const frame = document.getElementById('previewFrame');
+            frame.style.maxWidth = mobileMode ? '375px' : '100%';
+            frame.style.margin = mobileMode ? '0 auto' : '0';
+            frame.style.boxShadow = mobileMode ? '0 0 20px rgba(0,0,0,0.4)' : 'none';
+        }
+
+        function downloadCurrent() {
+            const blob = new Blob([buildFullHTML()], {type:'text/html;charset=utf-8'});
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = document.getElementById('customFilename').value || 'page.html';
+            a.click();
+            showStatus('⬇️ تم التحميل', 'success');
+        }
+
+        function showStatus(msg, type=''){
+            const el = document.getElementById('statusMessage');
+            el.innerHTML = msg;
+            el.className = `status ${type}`;
+        }
+
+        // بدء التشغيل
+        loadDraft();
+        if (settings.token) {
+            fetchRepoFiles();
+            fetchAssets();
         }
     </script>
 </body>
